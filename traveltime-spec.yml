@@ -1,0 +1,923 @@
+openapi: "3.0.2"
+
+info:
+  title: TravelTime Platform API
+  termsOfService: https://www.traveltimeplatform.com/terms-and-conditions
+  contact:
+    name: API Support
+    email: support@igeolise.com
+  version: 0.1.0
+
+servers:
+  url: https://api.traveltimeapp.com
+
+externalDocs:
+  url: http://docs.traveltimeplatform.com
+
+components:
+  schemas:
+    Coords:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+
+    RequestSearchId:
+      type: string
+
+    RequestDepartureArrivalLocationOne:
+      type: string
+
+    RequestTravelTime:
+      type: integer
+      minimum: 60
+      maximum: 14400
+
+    RequestDepartureArrivalTime:
+      type: string
+      format: date-time
+
+    ResponseLocalTime:
+      type: string
+
+    RequestRoutesProperty:
+      type: string
+      enum:
+        - travel_time
+        - distance
+        - fares
+        - route
+
+    RequestTimeFilterProperty:
+      type: string
+      enum:
+      - travel_time
+      - distance
+      - distance_breakdown
+      - fares
+      - route
+
+    RequestRangeEnabled:
+      type: boolean
+
+    RequestRangeWidth:
+      type: integer
+      minimum: 1
+      maximum: 43200
+
+    RequestRangeFull:
+      type: object
+      required:
+        - enabled
+        - max_results
+        - width
+      properties:
+        enabled:
+          $ref: '#/components/schemas/RequestRangeEnabled'
+        max_results:
+          type: integer
+          minimum: 1
+          maximum: 5
+        width:
+          $ref: '#/components/schemas/RequestRangeWidth'
+
+    RequestRangeNoMaxResults:
+      type: object
+      required:
+      - enabled
+      - width
+      properties:
+        enabled:
+          $ref: '#/components/schemas/RequestRangeEnabled'
+        width:
+          $ref: '#/components/schemas/RequestRangeWidth'
+
+    RequestTimeFilterDepartureSearch:
+      type: object
+      required:
+      - id
+      - departure_location_id
+      - arrival_location_ids
+      - transportation
+      - travel_time
+      - departure_time
+      - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        departure_location_id:
+          type: string
+        arrival_location_ids:
+          type: array
+          minItems: 1
+          maxItems: 2000
+          items:
+            type: string
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+
+    RequestTimeFilterArrivalSearch:
+      type: object
+      required:
+      - id
+      - departure_location_ids
+      - arrival_location_id
+      - transportation
+      - travel_time
+      - arrival_time
+      - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        departure_location_ids:
+          type: array
+          minItems: 1
+          maxItems: 2000
+          items:
+            type: string
+        arrival_location_id:
+          type: string
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+
+    RequestRoutesDepartureSearch:
+      type: object
+      required:
+      - id
+      - departure_location_id
+      - arrival_location_ids
+      - transportation
+      - departure_time
+      - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        departure_location_id:
+          type: string
+        arrival_location_ids:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            type: string
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestRoutesProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+
+    RequestRoutesArrivalSearch:
+      type: object
+      required:
+      - id
+      - departure_location_ids
+      - arrival_location_id
+      - transportation
+      - arrival_time
+      - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        departure_location_ids:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            type: string
+        arrival_location_id:
+          type: string
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestRoutesProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+
+    RequestTimeFilter:
+      type: object
+      required:
+        - locations
+      properties:
+        locations:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RequestLocation'
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterArrivalSearch'
+
+    RequestRoutes:
+      type: object
+      required:
+        - locations
+      properties:
+        locations:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RequestLocation'
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestRoutesDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestRoutesArrivalSearch'
+
+    RequestTimeMapProperty:
+      type: string
+      enum:
+        - is_only_walking
+
+    RequestUnionOnIntersection:
+      type: object
+      required:
+        - id
+        - search_ids
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        search_ids:
+          type: array
+          items:
+            type: string
+
+    RequestTimeMapDepartureSearch:
+      type: object
+      required:
+      - id
+      - coords
+      - transportation
+      - travel_time
+      - departure_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestTimeMapProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
+
+    RequestTimeMapArrivalSearch:
+      type: object
+      required:
+      - id
+      - coords
+      - transportation
+      - travel_time
+      - arrival_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestTimeMapProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
+
+    RequestTimeMap:
+      type: object
+      properties:
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeMapDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeMapArrivalSearch'
+        unions:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+        intersections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+
+    ResponseSearchId:
+      type: string
+
+    ResponseLocationId:
+      type: string
+
+    ResponseTravelTime:
+      type: integer
+
+    ResponseDistance:
+      type: integer
+
+    ResponseTransportationMode:
+      type: string
+      enum:
+        - car
+        - parking
+        - boarding
+        - walk
+        - bike
+        - train
+        - rail_national
+        - rail_overground
+        - rail_underground
+        - rail_dlr
+        - bus
+        - cable_car
+        - plane
+        - ferry
+        - coach
+
+    ResponseDistanceBreakdownItem:
+      type: object
+      required:
+      - mode
+      - distance
+      properties:
+        mode:
+          $ref: '#/components/schemas/ResponseTransportationMode'
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
+
+    ResponseFareTicket:
+      type: object
+      required:
+        - type
+        - price
+        - currency
+      properties:
+        type:
+          type: string
+          enum:
+            - single
+            - week
+            - month
+            - year
+        price:
+          type: number
+          format: double
+        currency:
+          type: string
+
+    ResponseFaresBreakdownItem:
+      type: object
+      required:
+      - modes
+      - route_part_ids
+      - tickets
+      properties:
+        modes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTransportationMode'
+        route_part_ids:
+          type: array
+          items:
+            type: integer
+        tickets:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseFareTicket'
+
+    ResponseFares:
+      type: object
+      required:
+        - breakdown
+        - tickets_total
+      properties:
+        breakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseFaresBreakdownItem'
+        tickets_total:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseFareTicket'
+
+    ResponseRoutePart:
+      type: object
+      required:
+        - id
+        - type
+        - mode
+        - directions
+        - distance
+        - travel_time
+        - coords
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - basic
+            - start_end
+            - road
+            - public_transport
+        mode:
+          $ref: '#/components/schemas/ResponseTransportationMode'
+        directions:
+          type: string
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+        coords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coords'
+        direction:
+          type: string
+        road:
+          type: string
+        turn:
+          type: string
+        line:
+          type: string
+        departure_station:
+          type: string
+        arrival_station:
+          type: string
+        departs_at:
+          $ref: '#/components/schemas/ResponseLocalTime'
+        arrives_at:
+          $ref: '#/components/schemas/ResponseLocalTime'
+        num_stops:
+          type: integer
+
+    ResponseRoute:
+      type: object
+      required:
+        - departure_time
+        - arrival_time
+        - parts
+      properties:
+        departure_time:
+          type: string
+          format: date-time
+        arrival_time:
+          type: string
+          format: date-time
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseRoutePart'
+
+    ResponseTimeFilterProperties:
+      type: object
+      properties:
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
+        distance_breakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseDistanceBreakdownItem'
+        fares:
+          $ref: '#/components/schemas/ResponseFares'
+        route:
+          $ref: '#/components/schemas/ResponseRoute'
+
+    ResponseRoutesProperties:
+      type: object
+      properties:
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
+        fares:
+          $ref: '#/components/schemas/ResponseFares'
+        route:
+          $ref: '#/components/schemas/ResponseRoute'
+
+    ResponseTimeFilterLocation:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ResponseLocationId'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterProperties'
+
+    ResponseRoutesLocation:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ResponseLocationId'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseRoutesProperties'
+
+    ResponseTimeFilterResult:
+      type: object
+      required:
+      - search_id
+      - locations
+      - unreachable
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterLocation'
+        unreachable:
+          type: array
+          items:
+            type: string
+
+    ResponseRoutesResult:
+      type: object
+      required:
+      - search_id
+      - locations
+      - unreachable
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseRoutesLocation'
+        unreachable:
+          type: array
+          items:
+            type: string
+
+    ResponseTimeFilter:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterResult'
+
+    ResponseRoutes:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseRoutesResult'
+
+    ResponseShape:
+      type: object
+      required:
+      - shell
+      - holes
+      properties:
+        shell:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coords'
+        holes:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Coords'
+
+    ResponseBox:
+      type: object
+      required:
+        - min_lat
+        - max_lat
+        - min_lng
+        - max_lng
+      properties:
+        min_lat:
+          type: number
+          format: double
+        max_lat:
+          type: number
+          format: double
+        min_lng:
+          type: number
+          format: double
+        max_lng:
+          type: number
+          format: double
+
+    ResponseBoundingBox:
+      type: object
+      required:
+      - envelope
+      - boxes
+      properties:
+        envelope:
+          $ref: '#/components/schemas/ResponseBox'
+        boxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseBox'
+
+    ResponseTimeMapProperties:
+      type: object
+      properties:
+        is_only_walking:
+          type: boolean
+
+    ResponseWktShape:
+      type: string
+
+    ResponseTimeMapResult:
+      type: object
+      required:
+      - search_id
+      - shapes
+      - properties
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        shapes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseShape'
+        properties:
+          $ref: '#/components/schemas/ResponseTimeMapProperties'
+
+    ResponseTimeMap:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeMapResult'
+
+    ResponseTimeMapWktResult:
+      type: object
+      required:
+      - search_id
+      - shape
+      - properties
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        shape:
+          $ref: '#/components/schemas/ResponseWktShape'
+        properties:
+          $ref: '#/components/schemas/ResponseTimeMapProperties'
+
+    ResponseTimeMapWkt:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeMapWktResult'
+
+    ResponseTimeMapBoundingBoxesResult:
+      type: object
+      required:
+      - search_id
+      - bounding_boxes
+      - properties
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        bounding_boxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseBoundingBox'
+        properties:
+          $ref: '#/components/schemas/ResponseTimeMapProperties'
+
+    ResponseTimeMapBoundingBoxes:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeMapBoundingBoxesResult'
+
+    RequestTransportation:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - cycling
+            - driving
+            - driving+train
+            - public_transport
+            - walking
+            - coach
+            - bus
+            - train
+            - ferry
+            - driving+ferry
+            - cycling+ferry
+        pt_change_delay:
+          type: integer
+        walking_time:
+          type: integer
+        driving_time_to_station:
+          type: integer
+        parking_time:
+          type: integer
+        boarding_time:
+          type: integer
+
+    RequestLocationId:
+      type: string
+
+    RequestLocation:
+      type: object
+      required:
+        - id
+        - coords
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestLocationId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+
+    ResponseError:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/error-response
+      type: object
+      properties:
+        http_status:
+          type: integer
+        error_code:
+          type: integer
+        description:
+          type: string
+        documentation_link:
+          type: string
+        additional_info:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  requestBodies:
+    TimeFilter:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestTimeFilter'
+
+    Routes:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestRoutes'
+
+    TimeMap:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestTimeMap'
+
+  responses:
+    Error:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+
+    TimeFilter:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeFilter'
+
+    Routes:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseRoutes'
+
+    TimeMap:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeMap'
+        'application/vnd.wkt+json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeMapWkt'
+        'application/vnd.wkt-no-holes+json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeMapWkt'
+        'application/vnd.bounding-boxes+json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeMapBoundingBoxes'
+
+
+paths:
+  /v4/time-filter:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/time-filter
+      operationId: timeFilter
+      requestBody:
+        $ref: '#/components/requestBodies/TimeFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/TimeFilter'
+        default:
+          $ref: '#/components/responses/Error'
+
+  /v4/time-map:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/time-map
+      operationId: timeMap
+      requestBody:
+        $ref: '#/components/requestBodies/TimeMap'
+      responses:
+        '200':
+          $ref: '#/components/responses/TimeMap'
+        default:
+          $ref: '#/components/responses/Error'
+
+  /v4/routes:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/routes
+      operationId: routes
+      requestBody:
+        $ref: '#/components/requestBodies/Routes'
+      responses:
+        '200':
+          $ref: '#/components/responses/Routes'
+        default:
+          $ref: '#/components/responses/Error'
