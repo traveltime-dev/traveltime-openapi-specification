@@ -6,7 +6,7 @@ info:
   contact:
     name: API Support
     email: support@igeolise.com
-  version: 0.1.0
+  version: 0.2.0
 
 servers:
   url: https://api.traveltimeapp.com
@@ -58,11 +58,11 @@ components:
     RequestTimeFilterProperty:
       type: string
       enum:
-      - travel_time
-      - distance
-      - distance_breakdown
-      - fares
-      - route
+        - travel_time
+        - distance
+        - distance_breakdown
+        - fares
+        - route
 
     RequestRangeEnabled:
       type: boolean
@@ -91,8 +91,8 @@ components:
     RequestRangeNoMaxResults:
       type: object
       required:
-      - enabled
-      - width
+        - enabled
+        - width
       properties:
         enabled:
           $ref: '#/components/schemas/RequestRangeEnabled'
@@ -102,13 +102,13 @@ components:
     RequestTimeFilterDepartureSearch:
       type: object
       required:
-      - id
-      - departure_location_id
-      - arrival_location_ids
-      - transportation
-      - travel_time
-      - departure_time
-      - properties
+        - id
+        - departure_location_id
+        - arrival_location_ids
+        - transportation
+        - travel_time
+        - departure_time
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
@@ -136,13 +136,13 @@ components:
     RequestTimeFilterArrivalSearch:
       type: object
       required:
-      - id
-      - departure_location_ids
-      - arrival_location_id
-      - transportation
-      - travel_time
-      - arrival_time
-      - properties
+        - id
+        - departure_location_ids
+        - arrival_location_id
+        - transportation
+        - travel_time
+        - arrival_time
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
@@ -167,15 +167,102 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeFull'
 
+    RequestArrivalTimePeriod:
+      type: string
+      enum:
+        - weekday_morning
+    
+    RequestTimeFilterFastProperty:
+      type: string
+      enum:
+        - travel_time
+        - fares
+    
+    RequestTimeFilterFastArrivalManyToOneSearch:
+      type: object
+      required:
+        - id
+        - arrival_location_id
+        - departure_location_ids
+        - transportation
+        - travel_time
+        - arrival_time_period
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        arrival_location_id:
+          type: string
+        departure_location_ids:
+          type: array
+          minItems: 1
+          maxItems: 100000
+          items:
+            type: string
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterFastProperty'
+
+    RequestTimeFilterFastArrivalOneToManySearch:
+      type: object
+      required:
+        - id
+        - departure_location_id
+        - arrival_location_ids
+        - transportation
+        - travel_time
+        - arrival_time_period
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        departure_location_id:
+          type: string
+        arrival_location_ids:
+          type: array
+          minItems: 1
+          maxItems: 100000
+          items:
+            type: string
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterFastProperty'
+
+    RequestTransportationFast:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - public_transport
+            - driving
+            - driving+public_transport
+    
     RequestRoutesDepartureSearch:
       type: object
       required:
-      - id
-      - departure_location_id
-      - arrival_location_ids
-      - transportation
-      - departure_time
-      - properties
+        - id
+        - departure_location_id
+        - arrival_location_ids
+        - transportation
+        - departure_time
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
@@ -249,6 +336,34 @@ components:
           maxItems: 10
           items:
             $ref: '#/components/schemas/RequestTimeFilterArrivalSearch'
+
+    RequestTimeFilterFastArrivalSearches:
+      type: object
+      properties:
+        many_to_one:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterFastArrivalManyToOneSearch'
+        one_to_many:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterFastArrivalOneToManySearch'
+
+    RequestTimeFilterFast:
+      type: object
+      required:
+        - locations
+        - arrival_searches
+      properties:
+        locations:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RequestLocation'
+        arrival_searches:
+            $ref: '#/components/schemas/RequestTimeFilterFastArrivalSearches'
 
     RequestRoutes:
       type: object
@@ -461,6 +576,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseFareTicket'
+    
+    ResponseFaresFast:
+      type: object
+      required:
+        - tickets_total
+      properties:
+        tickets_total:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseFareTicket'
 
     ResponseRoutePart:
       type: object
@@ -547,6 +672,14 @@ components:
         route:
           $ref: '#/components/schemas/ResponseRoute'
 
+    ResponseTimeFilterFastProperties:
+      type: object
+      properties:
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+        fares:
+          $ref: '#/components/schemas/ResponseFaresFast'
+
     ResponseRoutesProperties:
       type: object
       properties:
@@ -568,6 +701,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterProperties'
+    
+    ResponseTimeFilterFastLocation:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ResponseLocationId'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterFastProperties'
 
     ResponseRoutesLocation:
       type: object
@@ -582,9 +725,9 @@ components:
     ResponseTimeFilterResult:
       type: object
       required:
-      - search_id
-      - locations
-      - unreachable
+        - search_id
+        - locations
+        - unreachable
       properties:
         search_id:
           $ref: '#/components/schemas/ResponseSearchId'
@@ -592,6 +735,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterLocation'
+        unreachable:
+          type: array
+          items:
+            type: string
+
+    ResponseTimeFilterFastResult:
+      type: object
+      required:
+        - search_id
+        - locations
+        - unreachable
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterFastLocation'
         unreachable:
           type: array
           items:
@@ -622,6 +783,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterResult'
+
+    ResponseTimeFilterFast:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterFastResult'
 
     ResponseRoutes:
       type: object
@@ -833,6 +1002,13 @@ components:
           schema:
             $ref: '#/components/schemas/RequestTimeFilter'
 
+    TimeFilterFast:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestTimeFilterFast'
+
     Routes:
       required: true
       content:
@@ -859,6 +1035,12 @@ components:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilter'
+    
+    TimeFilterFast:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeFilterFast'
 
     Routes:
       content:
@@ -893,6 +1075,19 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/TimeFilter'
+        default:
+          $ref: '#/components/responses/Error'
+  
+  /v4/time-filter/fast:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/time-filter-fast
+      operationId: timeFilterFast
+      requestBody:
+        $ref: '#/components/requestBodies/TimeFilterFast'
+      responses:
+        '200':
+          $ref: '#/components/responses/TimeFilterFast'
         default:
           $ref: '#/components/responses/Error'
 
