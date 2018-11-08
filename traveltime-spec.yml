@@ -994,6 +994,113 @@ components:
             items:
               type: string
 
+    ResponseGeocodingGeometry:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+          items:
+            type: number
+            format: double
+
+    ResponseGeocodingTravelTimeFeaturesPublicTransport:
+      type: object
+      required:
+        - date_start
+        - date_end
+      properties:
+        date_start:
+          type: string
+          format: date-time
+        date_end:
+          type: string
+          format: date-time
+    
+    ResponseGeocodingTravelTimeFeatures:
+      type: object
+      required:
+        - fares
+        - postcodes
+      properties:
+        public_transport:
+          $ref: '#/components/schemas/ResponseGeocodingTravelTimeFeaturesPublicTransport'
+        fares:
+          type: boolean
+        postcodes:
+          type: boolean
+
+    ResponseGeocodingProperties:
+      type: object
+      required:
+        - name
+        - label
+      properties:
+        name:
+          type: string
+        label:
+          type: string
+        score:
+          type: number
+          format: double
+        house_number:
+          type: string
+        street:
+          type: string
+        region:
+          type: string
+        region_code:
+          type: string
+        neighbourhood:
+          type: string
+        county:
+          type: string
+        macroregion:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        country_code:
+          type: string
+        continent:
+          type: string
+        postcode:
+          type: string
+        features:
+          $ref: '#/components/schemas/ResponseGeocodingTravelTimeFeatures'
+    
+    ResponseGeocodingGeoJsonFeature:
+      type: object
+      required:
+        - type
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+        geometry:
+          $ref: '#/components/schemas/ResponseGeocodingGeometry'
+        properties:
+          $ref: '#/components/schemas/ResponseGeocodingProperties'
+    
+    ResponseGeocoding:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseGeocodingGeoJsonFeature'
+
   requestBodies:
     TimeFilter:
       required: true
@@ -1047,6 +1154,12 @@ components:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseRoutes'
+    
+    Geocoding:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseGeocoding'
 
     TimeMap:
       content:
@@ -1062,6 +1175,50 @@ components:
         'application/vnd.bounding-boxes+json':
           schema:
             $ref: '#/components/schemas/ResponseTimeMapBoundingBoxes'
+  
+  parameters:
+    GeocodingWithinCountry:
+      name: within.country
+      in: query
+      schema:
+        type: string
+    
+    GeocodingQuery:
+      name: query
+      in: query
+      required: true
+      schema:
+        type: string
+    
+    GeocodingFocusLat:
+      name: focus.lat
+      in: query
+      schema:
+        type: number
+        format: double
+    
+    GeocodingFocusLng:
+      name: focus.lng
+      in: query
+      schema:
+        type: number
+        format: double
+    
+    GeocodingReverseLat:
+      name: focus.lat
+      in: query
+      required: true
+      schema:
+        type: number
+        format: double
+    
+    GeocodingReverseLng:
+      name: focus.lng
+      in: query
+      required: true
+      schema:
+        type: number
+        format: double
 
 
 paths:
@@ -1116,3 +1273,34 @@ paths:
           $ref: '#/components/responses/Routes'
         default:
           $ref: '#/components/responses/Error'
+  
+  /v4/geocoding/search:
+    get:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/geocoding-search
+      operationId: geocodingSearch
+      responses:
+        '200':
+          $ref: '#/components/responses/Geocoding'
+        default:
+          $ref: '#/components/responses/Error'
+      parameters:
+        - $ref: '#/components/parameters/GeocodingQuery'
+        - $ref: '#/components/parameters/GeocodingWithinCountry'
+        - $ref: '#/components/parameters/GeocodingFocusLat'
+        - $ref: '#/components/parameters/GeocodingFocusLng'
+  
+  /v4/geocoding/reverse:
+    get:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/geocoding-reverse
+      operationId: geocodingReverseSearch
+      responses:
+        '200':
+          $ref: '#/components/responses/Geocoding'
+        default:
+          $ref: '#/components/responses/Error'
+      parameters:
+        - $ref: '#/components/parameters/GeocodingReverseLat'
+        - $ref: '#/components/parameters/GeocodingReverseLng'
+        - $ref: '#/components/parameters/GeocodingWithinCountry'
