@@ -14,7 +14,22 @@ servers:
 externalDocs:
   url: http://docs.traveltimeplatform.com
 
+security:
+  - ApplicationId: []
+    ApiKey: []
+
 components:
+  securitySchemes:
+    ApplicationId:
+      type: apiKey
+      name: X-Application-Id
+      in: header
+    
+    ApiKey:
+      type: apiKey
+      name: X-Api-Key
+      in: header
+
   schemas:
     Coords:
       type: object
