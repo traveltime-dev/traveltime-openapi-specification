@@ -9,7 +9,7 @@ info:
   version: 0.2.0
 
 servers:
-  url: https://api.traveltimeapp.com
+  - url: https://api.traveltimeapp.com
 
 externalDocs:
   url: http://docs.traveltimeplatform.com
