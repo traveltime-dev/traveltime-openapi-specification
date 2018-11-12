@@ -120,6 +120,140 @@ components:
         - travel_time
         - distance
     
+    RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold:
+      type: number
+      format: double
+
+    RequestTimeFilterPostcodeDistrictsProperty:
+      type: string
+      enum:
+        - travel_time_reachable
+        - travel_time_all
+        - coverage
+    
+    RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold:
+      type: number
+      format: double
+
+    RequestTimeFilterPostcodeSectorsProperty:
+      type: string
+      enum:
+        - travel_time_reachable
+        - travel_time_all
+        - coverage
+    
+    RequestTimeFilterPostcodeSectorsDepartureSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - departure_time
+        - reachable_postcodes_threshold
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        reachable_postcodes_threshold:
+          $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+    
+    RequestTimeFilterPostcodeSectorsArrivalSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - arrival_time
+        - reachable_postcodes_threshold
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        reachable_postcodes_threshold:
+          $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+    
+    RequestTimeFilterPostcodeDistrictsDepartureSearch:
+      type: object
+      required:
+        - id
+        - coords        
+        - transportation
+        - travel_time
+        - departure_time
+        - reachable_postcodes_threshold
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        reachable_postcodes_threshold:
+          $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+    
+    RequestTimeFilterPostcodeDistrictsArrivalSearch:
+      type: object
+      required:
+        - id
+        - coords        
+        - transportation
+        - travel_time
+        - arrival_time
+        - reachable_postcodes_threshold
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        reachable_postcodes_threshold:
+          $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+    
     RequestTimeFilterPostcodesDepartureSearch:
       type: object
       required:
@@ -421,6 +555,34 @@ components:
           maxItems: 10
           items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodesArrivalSearch'
+
+    RequestTimeFilterPostcodeDistricts:
+      type: object
+      properties:
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsArrivalSearch'
+
+    RequestTimeFilterPostcodeSectors:
+      type: object
+      properties:
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsArrivalSearch'
 
     RequestTimeFilterFastArrivalSearches:
       type: object
@@ -756,7 +918,24 @@ components:
           $ref: '#/components/schemas/ResponseFares'
         route:
           $ref: '#/components/schemas/ResponseRoute'
-    
+
+    ResponseTravelTimeStatistics:
+      type: object
+      required:
+        - min
+        - max
+        - mean
+        - median
+      properties:
+        min:
+          type: integer
+        max:
+          type: integer
+        mean:
+          type: integer
+        median:
+          type: integer 
+
     ResponseTimeFilterPostcodesProperties:
       type: object
       properties:
@@ -764,6 +943,28 @@ components:
           $ref: '#/components/schemas/ResponseTravelTime'
         distance:
           $ref: '#/components/schemas/ResponseDistance'
+
+    ResponseTimeFilterPostcodeDistrictProperties:
+      type: object
+      properties:
+        travel_time_reachable:
+          $ref: '#/components/schemas/ResponseTravelTimeStatistics'
+        travel_time_all:
+          $ref: '#/components/schemas/ResponseTravelTimeStatistics'
+        coverage:
+          type: number
+          format: double
+    
+    ResponseTimeFilterPostcodeSectorProperties:
+      type: object
+      properties:
+        travel_time_reachable:
+          $ref: '#/components/schemas/ResponseTravelTimeStatistics'
+        travel_time_all:
+          $ref: '#/components/schemas/ResponseTravelTimeStatistics'
+        coverage:
+          type: number
+          format: double
 
     ResponseTimeFilterFastProperties:
       type: object
@@ -837,6 +1038,28 @@ components:
           items:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodesProperties'
 
+    ResponseTimeFilterPostcodeDistrict:
+      type: object
+      required:
+        - code
+        - properties
+      properties:
+        code:
+          type: String
+        properties:
+          $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictProperties'
+    
+    ResponseTimeFilterPostcodeSector:
+      type: object
+      required:
+        - code
+        - properties
+      properties:
+        code:
+          type: String
+        properties:
+          $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorProperties'
+
     ResponseTimeFilterResult:
       type: object
       required:
@@ -867,6 +1090,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterPostcode'
+
+    ResponseTimeFilterPostcodeDistrictsResult:
+      type: object
+      required:
+        - search_id
+        - districts
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        districts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrict'
+    
+    ResponseTimeFilterPostcodeSectorsResult:
+      type: object
+      required:
+        - search_id
+        - sectors
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        sectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSector'
 
     ResponseTimeFilterFastResult:
       type: object
@@ -923,6 +1172,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodesResult'
+
+    ResponseTimeFilterPostcodeDistricts:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictsResult'
+    
+    ResponseTimeFilterPostcodeSectors:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorsResult'
 
     ResponseTimeFilterFast:
       type: object
@@ -1266,6 +1535,20 @@ components:
           schema:
             $ref: '#/components/schemas/RequestTimeFilterPostcodes'
 
+    TimeFilterPostcodeDistricts:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeDistricts'
+
+    TimeFilterPostcodeSectors:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodeSectors'
+
     TimeFilterFast:
       required: true
       content:
@@ -1305,6 +1588,18 @@ components:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodes'
+
+    TimeFilterPostcodeDistricts:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistricts'
+    
+    TimeFilterPostcodeSectors:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectors'
     
     TimeFilterFast:
       content:
@@ -1408,6 +1703,32 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/TimeFilterPostcodes'
+        default:
+          $ref: '#/components/responses/Error'
+  
+  /v4/time-filter/postcode-districts:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/postcode-search
+      operationId: timeFilterPostcodeDistricts
+      requestBody:
+        $ref: '#/components/requestBodies/TimeFilterPostcodeDistricts'
+      responses:
+        '200':
+          $ref: '#/components/responses/TimeFilterPostcodeDistricts'
+        default:
+          $ref: '#/components/responses/Error'
+  
+  /v4/time-filter/postcode-sectors:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/postcode-sector-filter
+      operationId: timeFilterPostcodeSectors
+      requestBody:
+        $ref: '#/components/requestBodies/TimeFilterPostcodeSectors'
+      responses:
+        '200':
+          $ref: '#/components/responses/TimeFilterPostcodeSectors'
         default:
           $ref: '#/components/responses/Error'
   
