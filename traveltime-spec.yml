@@ -1382,6 +1382,43 @@ components:
     RequestLocationId:
       type: string
 
+    ResponseSupportedLocation:
+      type: object
+      required:
+        - id
+        - map_name
+      properties:
+        id:
+          type: string
+        map_name:
+          type: string
+
+    ResponseSupportedLocations:
+      type: object
+      required:
+        - locations
+        - unsupported_locations
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseSupportedLocation'
+        unsupported_locations:
+          type: array
+          items:
+            type: string
+
+    RequestSupportedLocations:
+      type: object
+      required:
+        - locations
+      properties:
+        locations:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RequestLocation'
+
     RequestLocation:
       type: object
       required:
@@ -1591,6 +1628,13 @@ components:
           schema:
             $ref: '#/components/schemas/RequestTimeMap'
 
+    SupportedLocations:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestSupportedLocations'
+
   responses:
     Error:
       content:
@@ -1660,6 +1704,12 @@ components:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseMapInfo'
+
+    SupportedLocations:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseSupportedLocations'
 
   parameters:
     GeocodingWithinCountry:
@@ -1837,5 +1887,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MapInfo'
+        default:
+          $ref: '#/components/responses/Error'
+
+  /v4/supported-locations:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/supported-locations
+      operationId: supportedLocations
+      requestBody:
+        $ref: '#/components/requestBodies/SupportedLocations'
+      responses:
+        '200':
+          $ref: '#/components/responses/SupportedLocations'
         default:
           $ref: '#/components/responses/Error'
