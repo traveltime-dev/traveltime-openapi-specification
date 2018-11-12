@@ -6,7 +6,7 @@ info:
   contact:
     name: API Support
     email: support@igeolise.com
-  version: 0.3.0
+  version: 1.0.0
 
 servers:
   - url: https://api.traveltimeapp.com
