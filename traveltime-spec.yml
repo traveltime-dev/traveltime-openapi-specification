@@ -114,6 +114,62 @@ components:
         width:
           $ref: '#/components/schemas/RequestRangeWidth'
 
+    RequestTimeFilterPostcodesProperty:
+      type: string
+      enum:
+        - travel_time
+        - distance
+    
+    RequestTimeFilterPostcodesDepartureSearch:
+      type: object
+      required:
+        - id
+        - coords        
+        - transportation
+        - travel_time
+        - departure_time
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodesProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+    
+    RequestTimeFilterPostcodesArrivalSearch:
+      type: object
+      required:
+        - id
+        - coords        
+        - transportation
+        - travel_time
+        - arrival_time
+        - properties
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        properties:
+          type: array
+          item:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodesProperty'
+        range:
+          $ref: '#/components/schemas/RequestRangeFull'
+    
     RequestTimeFilterDepartureSearch:
       type: object
       required:
@@ -303,12 +359,12 @@ components:
     RequestRoutesArrivalSearch:
       type: object
       required:
-      - id
-      - departure_location_ids
-      - arrival_location_id
-      - transportation
-      - arrival_time
-      - properties
+        - id
+        - departure_location_ids
+        - arrival_location_id
+        - transportation
+        - arrival_time
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
@@ -351,6 +407,20 @@ components:
           maxItems: 10
           items:
             $ref: '#/components/schemas/RequestTimeFilterArrivalSearch'
+    
+    RequestTimeFilterPostcodes:
+      type: object
+      properties:
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodesDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodesArrivalSearch'
 
     RequestTimeFilterFastArrivalSearches:
       type: object
@@ -422,11 +492,11 @@ components:
     RequestTimeMapDepartureSearch:
       type: object
       required:
-      - id
-      - coords
-      - transportation
-      - travel_time
-      - departure_time
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - departure_time
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
@@ -448,11 +518,11 @@ components:
     RequestTimeMapArrivalSearch:
       type: object
       required:
-      - id
-      - coords
-      - transportation
-      - travel_time
-      - arrival_time
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - arrival_time
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
@@ -529,8 +599,8 @@ components:
     ResponseDistanceBreakdownItem:
       type: object
       required:
-      - mode
-      - distance
+       - mode
+       - distance
       properties:
         mode:
           $ref: '#/components/schemas/ResponseTransportationMode'
@@ -560,9 +630,9 @@ components:
     ResponseFaresBreakdownItem:
       type: object
       required:
-      - modes
-      - route_part_ids
-      - tickets
+        - modes
+        - route_part_ids
+        - tickets
       properties:
         modes:
           type: array
@@ -686,6 +756,14 @@ components:
           $ref: '#/components/schemas/ResponseFares'
         route:
           $ref: '#/components/schemas/ResponseRoute'
+    
+    ResponseTimeFilterPostcodesProperties:
+      type: object
+      properties:
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
 
     ResponseTimeFilterFastProperties:
       type: object
@@ -709,6 +787,9 @@ components:
 
     ResponseTimeFilterLocation:
       type: object
+      required:
+        - id
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/ResponseLocationId'
@@ -719,6 +800,9 @@ components:
     
     ResponseTimeFilterFastLocation:
       type: object
+      required:
+        - id
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/ResponseLocationId'
@@ -729,6 +813,9 @@ components:
 
     ResponseRoutesLocation:
       type: object
+      required:
+        - id
+        - properties
       properties:
         id:
           $ref: '#/components/schemas/ResponseLocationId'
@@ -736,6 +823,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseRoutesProperties'
+    
+    ResponseTimeFilterPostcode:
+      type: object
+      required:
+        - code
+        - properties
+      properties:
+        code:
+          type: String
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodesProperties'
 
     ResponseTimeFilterResult:
       type: object
@@ -754,6 +854,19 @@ components:
           type: array
           items:
             type: string
+    
+    ResponseTimeFilterPostcodesResult:
+      type: object
+      required:
+        - search_id
+        - postcodes
+      properties:
+        search_id:
+          $ref: '#/components/schemas/ResponseSearchId'
+        postcodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcode'
 
     ResponseTimeFilterFastResult:
       type: object
@@ -776,9 +889,9 @@ components:
     ResponseRoutesResult:
       type: object
       required:
-      - search_id
-      - locations
-      - unreachable
+        - search_id
+        - locations
+        - unreachable
       properties:
         search_id:
           $ref: '#/components/schemas/ResponseSearchId'
@@ -793,14 +906,28 @@ components:
 
     ResponseTimeFilter:
       type: object
+      required:
+        - results
       properties:
         results:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterResult'
+    
+    ResponseTimeFilterPostcodes:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodesResult'
 
     ResponseTimeFilterFast:
       type: object
+      required:
+        - results
       properties:
         results:
           type: array
@@ -809,6 +936,8 @@ components:
 
     ResponseRoutes:
       type: object
+      required:
+        - results
       properties:
         results:
           type: array
@@ -818,8 +947,8 @@ components:
     ResponseShape:
       type: object
       required:
-      - shell
-      - holes
+        - shell
+        - holes
       properties:
         shell:
           type: array
@@ -856,8 +985,8 @@ components:
     ResponseBoundingBox:
       type: object
       required:
-      - envelope
-      - boxes
+        - envelope
+        - boxes
       properties:
         envelope:
           $ref: '#/components/schemas/ResponseBox'
@@ -878,9 +1007,9 @@ components:
     ResponseTimeMapResult:
       type: object
       required:
-      - search_id
-      - shapes
-      - properties
+        - search_id
+        - shapes
+        - properties
       properties:
         search_id:
           $ref: '#/components/schemas/ResponseSearchId'
@@ -893,6 +1022,8 @@ components:
 
     ResponseTimeMap:
       type: object
+      required:
+        - results
       properties:
         results:
           type: array
@@ -902,9 +1033,9 @@ components:
     ResponseTimeMapWktResult:
       type: object
       required:
-      - search_id
-      - shape
-      - properties
+        - search_id
+        - shape
+        - properties
       properties:
         search_id:
           $ref: '#/components/schemas/ResponseSearchId'
@@ -915,6 +1046,8 @@ components:
 
     ResponseTimeMapWkt:
       type: object
+      required:
+        - results
       properties:
         results:
           type: array
@@ -924,9 +1057,9 @@ components:
     ResponseTimeMapBoundingBoxesResult:
       type: object
       required:
-      - search_id
-      - bounding_boxes
-      - properties
+        - search_id
+        - bounding_boxes
+        - properties
       properties:
         search_id:
           $ref: '#/components/schemas/ResponseSearchId'
@@ -939,6 +1072,8 @@ components:
 
     ResponseTimeMapBoundingBoxes:
       type: object
+      required:
+        - results
       properties:
         results:
           type: array
@@ -1123,6 +1258,13 @@ components:
         'application/json':
           schema:
             $ref: '#/components/schemas/RequestTimeFilter'
+    
+    TimeFilterPostcodes:
+      required: true
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/RequestTimeFilterPostcodes'
 
     TimeFilterFast:
       required: true
@@ -1157,6 +1299,12 @@ components:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilter'
+    
+    TimeFilterPostcodes:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodes'
     
     TimeFilterFast:
       content:
@@ -1247,6 +1395,19 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/TimeFilter'
+        default:
+          $ref: '#/components/responses/Error'
+      
+  /v4/time-filter/postcodes:
+    post:
+      externalDocs:
+        url: http://docs.traveltimeplatform.com/reference/postcode-search
+      operationId: timeFilterPostcodes
+      requestBody:
+        $ref: '#/components/requestBodies/TimeFilterPostcodes'
+      responses:
+        '200':
+          $ref: '#/components/responses/TimeFilterPostcodes'
         default:
           $ref: '#/components/responses/Error'
   
