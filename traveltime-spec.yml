@@ -1637,54 +1637,63 @@ components:
 
   responses:
     Error:
+      description: 'The json body returned upon error. [Docs link](http://docs.traveltimeplatform.com/reference/error-response)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseError'
 
     TimeFilter:
+      description: 'Given origin and destination points filter out points that cannot be reached within specified time limit. [Docs link](http://docs.traveltimeplatform.com/reference/time-filter)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilter'
     
     TimeFilterPostcodes:
+      description: 'Find reachable postcodes from origin and get statistics about such postcodes. [Docs link](http://docs.traveltimeplatform.com/reference/postcode-search/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodes'
 
     TimeFilterPostcodeDistricts:
+      description: 'Find districts that have a certain coverage from origin and get statistics about postcodes within such districts. [Docs link](http://docs.traveltimeplatform.com/reference/postcode-district-filter/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistricts'
     
     TimeFilterPostcodeSectors:
+      description: 'Find sectors that have a certain coverage from origin and get statistics about postcodes within such sectors. [Docs link](http://docs.traveltimeplatform.com/reference/postcode-sector-filter/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectors'
     
     TimeFilterFast:
+      description: 'A very fast version of Time Filter. [Docs link](http://docs.traveltimeplatform.com/reference/time-filter-fast/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterFast'
 
     Routes:
+      description: 'Returns routing information between source and destinations. [Docs link](http://docs.traveltimeplatform.com/reference/routes/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseRoutes'
     
     Geocoding:
+      description: 'Match a query string to geographic coordinates. [Docs link](http://docs.traveltimeplatform.com/reference/geocoding-search/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseGeocoding'
 
     TimeMap:
+      description: 'Given origin coordinates, find shapes of zones reachable within corresponding travel time. [Docs link](http://docs.traveltimeplatform.com/reference/time-map/)'
       content:
         'application/json':
           schema:
@@ -1700,12 +1709,14 @@ components:
             $ref: '#/components/schemas/ResponseTimeMapBoundingBoxes'
 
     MapInfo:
+      description: 'Returns information about currently supported countries. [Docs link](http://docs.traveltimeplatform.com/reference/map-info/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseMapInfo'
 
     SupportedLocations:
+      description: 'Find out what points are supported by our api. [Docs link](http://docs.traveltimeplatform.com/reference/supported-locations/)'
       content:
         'application/json':
           schema:
