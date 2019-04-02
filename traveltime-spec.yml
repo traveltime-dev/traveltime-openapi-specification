@@ -165,7 +165,7 @@ components:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -193,7 +193,7 @@ components:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -221,7 +221,7 @@ components:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -249,7 +249,7 @@ components:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -274,7 +274,7 @@ components:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -299,7 +299,7 @@ components:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterPostcodesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -333,7 +333,7 @@ components:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -367,7 +367,7 @@ components:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
@@ -412,7 +412,7 @@ components:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
 
     RequestTimeFilterFastArrivalOneToManySearch:
@@ -444,7 +444,7 @@ components:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
 
     RequestTransportationFast:
@@ -516,7 +516,7 @@ components:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         properties:
           type: array
-          item:
+          items:
             $ref: '#/components/schemas/RequestRoutesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
