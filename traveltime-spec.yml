@@ -1,4 +1,4 @@
-openapi: "3.0.2"
+openapi: "3.0.3"
 
 info:
   title: TravelTime Platform API
@@ -1751,7 +1751,7 @@ components:
         format: double
     
     GeocodingReverseLat:
-      name: focus.lat
+      name: lat
       in: query
       required: true
       schema:
@@ -1759,7 +1759,7 @@ components:
         format: double
     
     GeocodingReverseLng:
-      name: focus.lng
+      name: lng
       in: query
       required: true
       schema:
@@ -1871,9 +1871,9 @@ paths:
           $ref: '#/components/responses/Error'
       parameters:
         - $ref: '#/components/parameters/GeocodingQuery'
-        - $ref: '#/components/parameters/GeocodingWithinCountry'
         - $ref: '#/components/parameters/GeocodingFocusLat'
         - $ref: '#/components/parameters/GeocodingFocusLng'
+        - $ref: '#/components/parameters/GeocodingWithinCountry'
   
   /v4/geocoding/reverse:
     get:
