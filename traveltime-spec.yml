@@ -1,18 +1,18 @@
 openapi: "3.0.3"
 
 info:
-  title: TravelTime Platform API
-  termsOfService: https://www.traveltimeplatform.com/terms-and-conditions
+  title: TravelTime API
+  termsOfService: https://www.traveltime.com/terms-and-conditions
   contact:
     name: API Support
     email: support@igeolise.com
-  version: 1.0.0
+  version: 1.2.1
 
 servers:
   - url: https://api.traveltimeapp.com
 
 externalDocs:
-  url: http://docs.traveltimeplatform.com
+  url: http://docs.traveltime.com
 
 security:
   - ApplicationId: []
@@ -1432,7 +1432,7 @@ components:
 
     ResponseError:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/error-response
+        url: http://docs.traveltime.com/reference/error-response
       type: object
       properties:
         http_status:
@@ -1637,63 +1637,63 @@ components:
 
   responses:
     Error:
-      description: 'The json body returned upon error. [Docs link](http://docs.traveltimeplatform.com/reference/error-response)'
+      description: 'The json body returned upon error. [Docs link](http://docs.traveltime.com/reference/error-response)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseError'
 
     TimeFilter:
-      description: 'Given origin and destination points filter out points that cannot be reached within specified time limit. [Docs link](http://docs.traveltimeplatform.com/reference/time-filter)'
+      description: 'Given origin and destination points filter out points that cannot be reached within specified time limit. [Docs link](http://docs.traveltime.com/reference/time-filter)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilter'
     
     TimeFilterPostcodes:
-      description: 'Find reachable postcodes from origin and get statistics about such postcodes. [Docs link](http://docs.traveltimeplatform.com/reference/postcode-search/)'
+      description: 'Find reachable postcodes from origin and get statistics about such postcodes. [Docs link](http://docs.traveltime.com/reference/postcode-search/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodes'
 
     TimeFilterPostcodeDistricts:
-      description: 'Find districts that have a certain coverage from origin and get statistics about postcodes within such districts. [Docs link](http://docs.traveltimeplatform.com/reference/postcode-district-filter/)'
+      description: 'Find districts that have a certain coverage from origin and get statistics about postcodes within such districts. [Docs link](http://docs.traveltime.com/reference/postcode-district-filter/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistricts'
     
     TimeFilterPostcodeSectors:
-      description: 'Find sectors that have a certain coverage from origin and get statistics about postcodes within such sectors. [Docs link](http://docs.traveltimeplatform.com/reference/postcode-sector-filter/)'
+      description: 'Find sectors that have a certain coverage from origin and get statistics about postcodes within such sectors. [Docs link](http://docs.traveltime.com/reference/postcode-sector-filter/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectors'
     
     TimeFilterFast:
-      description: 'A very fast version of Time Filter. [Docs link](http://docs.traveltimeplatform.com/reference/time-filter-fast/)'
+      description: 'A very fast version of Time Filter. [Docs link](http://docs.traveltime.com/reference/time-filter-fast/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseTimeFilterFast'
 
     Routes:
-      description: 'Returns routing information between source and destinations. [Docs link](http://docs.traveltimeplatform.com/reference/routes/)'
+      description: 'Returns routing information between source and destinations. [Docs link](http://docs.traveltime.com/reference/routes/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseRoutes'
     
     Geocoding:
-      description: 'Match a query string to geographic coordinates. [Docs link](http://docs.traveltimeplatform.com/reference/geocoding-search/)'
+      description: 'Match a query string to geographic coordinates. [Docs link](http://docs.traveltime.com/reference/geocoding-search/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseGeocoding'
 
     TimeMap:
-      description: 'Given origin coordinates, find shapes of zones reachable within corresponding travel time. [Docs link](http://docs.traveltimeplatform.com/reference/time-map/)'
+      description: 'Given origin coordinates, find shapes of zones reachable within corresponding travel time. [Docs link](http://docs.traveltime.com/reference/time-map/)'
       content:
         'application/json':
           schema:
@@ -1709,14 +1709,14 @@ components:
             $ref: '#/components/schemas/ResponseTimeMapBoundingBoxes'
 
     MapInfo:
-      description: 'Returns information about currently supported countries. [Docs link](http://docs.traveltimeplatform.com/reference/map-info/)'
+      description: 'Returns information about currently supported countries. [Docs link](http://docs.traveltime.com/reference/map-info/)'
       content:
         'application/json':
           schema:
             $ref: '#/components/schemas/ResponseMapInfo'
 
     SupportedLocations:
-      description: 'Find out what points are supported by our api. [Docs link](http://docs.traveltimeplatform.com/reference/supported-locations/)'
+      description: 'Find out what points are supported by our api. [Docs link](http://docs.traveltime.com/reference/supported-locations/)'
       content:
         'application/json':
           schema:
@@ -1771,7 +1771,7 @@ paths:
   /v4/time-filter:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/time-filter
+        url: http://docs.traveltime.com/reference/time-filter
       operationId: timeFilter
       requestBody:
         $ref: '#/components/requestBodies/TimeFilter'
@@ -1784,7 +1784,7 @@ paths:
   /v4/time-filter/postcodes:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/postcode-search
+        url: http://docs.traveltime.com/reference/postcode-search
       operationId: timeFilterPostcodes
       requestBody:
         $ref: '#/components/requestBodies/TimeFilterPostcodes'
@@ -1797,7 +1797,7 @@ paths:
   /v4/time-filter/postcode-districts:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/postcode-search
+        url: http://docs.traveltime.com/reference/postcode-search
       operationId: timeFilterPostcodeDistricts
       requestBody:
         $ref: '#/components/requestBodies/TimeFilterPostcodeDistricts'
@@ -1810,7 +1810,7 @@ paths:
   /v4/time-filter/postcode-sectors:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/postcode-sector-filter
+        url: http://docs.traveltime.com/reference/postcode-sector-filter
       operationId: timeFilterPostcodeSectors
       requestBody:
         $ref: '#/components/requestBodies/TimeFilterPostcodeSectors'
@@ -1823,7 +1823,7 @@ paths:
   /v4/time-filter/fast:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/time-filter-fast
+        url: http://docs.traveltime.com/reference/time-filter-fast
       operationId: timeFilterFast
       requestBody:
         $ref: '#/components/requestBodies/TimeFilterFast'
@@ -1836,7 +1836,7 @@ paths:
   /v4/time-map:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/time-map
+        url: http://docs.traveltime.com/reference/time-map
       operationId: timeMap
       requestBody:
         $ref: '#/components/requestBodies/TimeMap'
@@ -1849,7 +1849,7 @@ paths:
   /v4/routes:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/routes
+        url: http://docs.traveltime.com/reference/routes
       operationId: routes
       requestBody:
         $ref: '#/components/requestBodies/Routes'
@@ -1862,7 +1862,7 @@ paths:
   /v4/geocoding/search:
     get:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/geocoding-search
+        url: http://docs.traveltime.com/reference/geocoding-search
       operationId: geocodingSearch
       responses:
         '200':
@@ -1878,7 +1878,7 @@ paths:
   /v4/geocoding/reverse:
     get:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/geocoding-reverse
+        url: http://docs.traveltime.com/reference/geocoding-reverse
       operationId: geocodingReverseSearch
       responses:
         '200':
@@ -1893,7 +1893,7 @@ paths:
   /v4/map-info:
     get:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/map-info
+        url: http://docs.traveltime.com/reference/map-info
       operationId: mapInfo
       responses:
         '200':
@@ -1904,7 +1904,7 @@ paths:
   /v4/supported-locations:
     post:
       externalDocs:
-        url: http://docs.traveltimeplatform.com/reference/supported-locations
+        url: http://docs.traveltime.com/reference/supported-locations
       operationId: supportedLocations
       requestBody:
         $ref: '#/components/requestBodies/SupportedLocations'
