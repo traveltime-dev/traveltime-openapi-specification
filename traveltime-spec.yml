@@ -6,7 +6,7 @@ info:
   contact:
     name: API Support
     email: support@igeolise.com
-  version: 1.2.2
+  version: 1.2.3
 
 servers:
   - url: https://api.traveltimeapp.com
@@ -638,6 +638,25 @@ components:
       enum:
         - is_only_walking
 
+    RequestLevelOfDetail:
+      type: object
+      required:
+        - scale_type
+        - level
+      properties:
+        scale_type:
+          type: string
+          enum:
+            - simple
+        level:
+          type: string
+          enum:
+            - lowest
+            - low
+            - medium
+            - high
+            - highest
+
     RequestUnionOnIntersection:
       type: object
       required:
@@ -676,6 +695,8 @@ components:
             $ref: '#/components/schemas/RequestTimeMapProperty'
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
+        level_of_detail:
+          $ref: '#/components/schemas/RequestLevelOfDetail'
 
     RequestTimeMapArrivalSearch:
       type: object
@@ -702,6 +723,8 @@ components:
             $ref: '#/components/schemas/RequestTimeMapProperty'
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
+        level_of_detail:
+          $ref: '#/components/schemas/RequestLevelOfDetail'
 
     RequestTimeMap:
       type: object
@@ -1368,11 +1391,15 @@ components:
             - ferry
             - driving+ferry
             - cycling+ferry
+        disable_border_crossing:
+          type: boolean
         pt_change_delay:
           type: integer
         walking_time:
           type: integer
         driving_time_to_station:
+          type: integer
+        cycling_time_to_station:
           type: integer
         parking_time:
           type: integer
