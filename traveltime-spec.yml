@@ -55,6 +55,11 @@ components:
       minimum: 60
       maximum: 14400
 
+    RequestTravelTimeForFast:
+      type: integer
+      minimum: 60
+      maximum: 10800
+
     RequestDepartureArrivalTime:
       type: string
       format: date-time
@@ -122,6 +127,8 @@ components:
     
     RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold:
       type: number
+      minimum: 0.0
+      maximum: 1.0
       format: double
 
     RequestTimeFilterPostcodeDistrictsProperty:
@@ -155,12 +162,14 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+        coords:
+          $ref: '#/components/schemas/Coords'
         departure_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         reachable_postcodes_threshold:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold'
         properties:
@@ -183,12 +192,14 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+        coords:
+          $ref: '#/components/schemas/Coords'
         arrival_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         reachable_postcodes_threshold:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold'
         properties:
@@ -211,12 +222,14 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+        coords:
+          $ref: '#/components/schemas/Coords'
         departure_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         reachable_postcodes_threshold:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold'
         properties:
@@ -239,12 +252,14 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+        coords:
+          $ref: '#/components/schemas/Coords'
         arrival_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         reachable_postcodes_threshold:
           $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold'
         properties:
@@ -266,12 +281,14 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
+        coords:
+          $ref: '#/components/schemas/Coords'
         travel_time:
           $ref: '#/components/schemas/RequestTravelTime'
         departure_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         properties:
           type: array
           items:
@@ -291,12 +308,14 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
+        coords:
+          $ref: '#/components/schemas/Coords'
         travel_time:
           $ref: '#/components/schemas/RequestTravelTime'
         arrival_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         properties:
           type: array
           items:
@@ -325,16 +344,16 @@ components:
           maxItems: 2000
           items:
             type: string
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
         departure_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeFilterProperty'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
 
@@ -359,16 +378,16 @@ components:
             type: string
         arrival_location_id:
           type: string
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
         arrival_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeFilterProperty'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
 
@@ -404,17 +423,17 @@ components:
           maxItems: 100000
           items:
             type: string
-        transportation:
-          $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+          $ref: '#/components/schemas/RequestTravelTimeForFast'
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
-
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        
     RequestTimeFilterFastArrivalOneToManySearch:
       type: object
       required:
@@ -436,16 +455,16 @@ components:
           maxItems: 100000
           items:
             type: string
-        transportation:
-          $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+          $ref: '#/components/schemas/RequestTravelTimeForFast'
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
 
     RequestTransportationFast:
       type: object
@@ -458,6 +477,11 @@ components:
             - public_transport
             - driving
             - driving+public_transport
+            - driving+ferry
+            - cycling
+            - cycling+ferry
+            - walking
+            - walking+ferry
     
     RequestRoutesDepartureSearch:
       type: object
@@ -479,14 +503,14 @@ components:
           maxItems: 2
           items:
             type: string
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
         departure_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestRoutesProperty'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
 
@@ -643,11 +667,14 @@ components:
       required:
         - scale_type
         - level
+        - square_size
       properties:
         scale_type:
           type: string
           enum:
             - simple
+            - simple_numeric
+            - coarse_grid
         level:
           type: string
           enum:
@@ -656,6 +683,9 @@ components:
             - medium
             - high
             - highest
+        square_size:
+          type: integer
+          minimum: 600
 
     RequestUnionOnIntersection:
       type: object
@@ -683,20 +713,24 @@ components:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
           $ref: '#/components/schemas/Coords'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
         departure_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeMapProperty'
-        range:
-          $ref: '#/components/schemas/RequestRangeNoMaxResults'
         level_of_detail:
           $ref: '#/components/schemas/RequestLevelOfDetail'
+        single_shape:
+          type: boolean
+        no_holes:
+          type: boolean
 
     RequestTimeMapArrivalSearch:
       type: object
@@ -711,20 +745,24 @@ components:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
           $ref: '#/components/schemas/Coords'
-        transportation:
-          $ref: '#/components/schemas/RequestTransportation'
-        travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
         arrival_time:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
         properties:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeMapProperty'
-        range:
-          $ref: '#/components/schemas/RequestRangeNoMaxResults'
         level_of_detail:
           $ref: '#/components/schemas/RequestLevelOfDetail'
+        single_shape:
+          type: boolean
+        no_holes:
+          type: boolean
 
     RequestTimeMap:
       type: object
@@ -770,6 +808,7 @@ components:
         - boarding
         - walk
         - bike
+        - bike_parking
         - train
         - rail_national
         - rail_overground
@@ -869,7 +908,7 @@ components:
         - coords
       properties:
         id:
-          type: string
+          type: integer
         type:
           type: string
           enum:
@@ -987,6 +1026,8 @@ components:
           $ref: '#/components/schemas/ResponseTravelTimeStatistics'
         coverage:
           type: number
+          minimum: 0.0
+          maximum: 100.0
           format: double
 
     ResponseTimeFilterFastProperties:
@@ -1371,6 +1412,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeMapBoundingBoxesResult'
+    
+    RequestTransportationMaxChanges:
+      type: object
+      required:
+        - enabled
+        - limit
+      properties:
+        enabled:
+          type: boolean
+        limit:
+          type: integer
+          minimum: 0
 
     RequestTransportation:
       type: object
@@ -1406,6 +1459,8 @@ components:
           type: integer
         boarding_time:
           type: integer
+        max_changes:
+            $ref: '#/components/schemas/RequestTransportationMaxChanges'
 
     RequestLocationId:
       type: string
@@ -1415,11 +1470,17 @@ components:
       required:
         - id
         - map_name
+        - additional_map_names
       properties:
         id:
           type: string
         map_name:
           type: string
+        additional_map_names:
+          type: array
+          items: 
+            type: string
+        
 
     ResponseSupportedLocations:
       type: object
@@ -1504,15 +1565,67 @@ components:
         date_end:
           type: string
           format: date-time
+
+    ResponseMapInfoFeaturesSupported:
+      type: object
+      required:
+        - search_type
+        - transportation_mode
+      properties:
+        search_type:
+          type: string
+          enum:
+            - arrival.many_to_one
+            - arrival.one_to_many
+        transportation_mode:
+          type: string
+          enum:
+            - public_transport
+            - driving
+            - driving+public_transport
+
+    ResponseMapInfoFeaturesPeriods:
+      type: object
+      required:
+        - time_period
+        - supported
+      properties:
+        time_period:
+          type: string
+          enum: 
+            - weekday_morning
+        supported:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ResponseMapInfoFeaturesSupported'
+
+    ResponseMapInfoFeaturesTimeFastFilter:
+      type: object
+      required:
+        - periods
+      properties:
+        periods:
+          type: array
+          minItems: 1
+          items: 
+            $ref: '#/components/schemas/ResponseMapInfoFeaturesPeriods'
     
     ResponseMapInfoFeatures:
       type: object
       required:
         - fares
         - postcodes
+        - cross_country_modes
       properties:
         public_transport:
           $ref: '#/components/schemas/ResponseMapInfoFeaturesPublicTransport'
+        time_filter_fast:
+          $ref: '#/components/schemas/ResponseMapInfoFeaturesTimeFastFilter'
+        cross_country_modes:
+          type: array
+          items:
+            type: object
         fares:
           type: boolean
         postcodes:
@@ -1523,13 +1636,20 @@ components:
       required:
         - name
         - label
+        - category
+        - type
       properties:
         name:
           type: string
         label:
           type: string
+        category:
+          type: string
+        type:
+          type: string
         score:
           type: number
+          maximum: 1
           format: double
         house_number:
           type: string
@@ -1547,7 +1667,13 @@ components:
           type: string
         city:
           type: string
+        town:
+          type: string
+        district:
+          type: string
         country:
+          type: string
+        local_admin:
           type: string
         country_code:
           type: string
