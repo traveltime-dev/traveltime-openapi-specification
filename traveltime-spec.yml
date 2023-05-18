@@ -475,12 +475,9 @@ components:
           type: string
           enum:
             - public_transport
-            - driving
             - driving+public_transport
             - driving+ferry
-            - cycling
             - cycling+ferry
-            - walking
             - walking+ferry
     
     RequestRoutesDepartureSearch:
