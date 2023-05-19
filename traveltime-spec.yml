@@ -55,7 +55,7 @@ components:
       minimum: 60
       maximum: 14400
 
-    RequestTravelTimeForFast:
+    RequestTravelTimeFast:
       type: integer
       minimum: 60
       maximum: 10800
@@ -424,7 +424,7 @@ components:
           items:
             type: string
         travel_time:
-          $ref: '#/components/schemas/RequestTravelTimeForFast'
+          $ref: '#/components/schemas/RequestTravelTimeFast'
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
@@ -456,7 +456,7 @@ components:
           items:
             type: string
         travel_time:
-          $ref: '#/components/schemas/RequestTravelTimeForFast'
+          $ref: '#/components/schemas/RequestTravelTimeFast'
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
