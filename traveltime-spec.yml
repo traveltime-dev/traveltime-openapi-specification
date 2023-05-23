@@ -663,8 +663,6 @@ components:
       type: object
       required:
         - scale_type
-        - level
-        - square_size
       properties:
         scale_type:
           type: string
@@ -672,17 +670,31 @@ components:
             - simple
             - simple_numeric
             - coarse_grid
-        level:
-          type: string
-          enum:
-            - lowest
-            - low
-            - medium
-            - high
-            - highest
-        square_size:
-          type: integer
-          minimum: 600
+      oneOf:
+        - properties:
+            level:
+              type: string
+              enum:
+                - lowest
+                - low
+                - medium
+                - high
+                - highest
+          required: 
+            - level
+        - properties:
+            level:
+              type: integer
+              minimum: -20
+              maximum: 2
+          required:
+            - level
+        - properties:
+            square_size:
+              type: integer
+              minimum: 600
+          required:
+            - square_size
 
     RequestUnionOnIntersection:
       type: object
