@@ -120,6 +120,7 @@ components:
         - distance
         - fares
         - route
+      description: Properties to return for route searches
 
     RequestTimeFilterProperty:
       type: string
@@ -129,9 +130,11 @@ components:
         - distance_breakdown
         - fares
         - route
+      description: Properties to return for time filter searches
 
     RequestRangeEnabled:
       type: boolean
+      description: Enable range-based search
 
     RequestRangeWidth:
       type: integer
@@ -166,6 +169,21 @@ components:
           $ref: '#/components/schemas/RequestRangeEnabled'
         width:
           $ref: '#/components/schemas/RequestRangeWidth'
+
+    RequestSnapping:
+      type: object
+      properties:
+        penalty:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: Control road network lookup behavior
+        accept_roads:
+          type: array
+          items:
+            type: string
+          description: List of road types to accept
 
     RequestTimeFilterPostcodesProperty:
       type: string
@@ -407,6 +425,8 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
 
     RequestTimeFilterArrivalSearch:
       type: object
@@ -441,6 +461,8 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
 
     RequestArrivalTimePeriod:
       type: string
@@ -537,6 +559,7 @@ components:
             - ferry
             - driving+ferry
             - cycling+ferry
+            - cycling+public_transport
           description: Mode of transportation
         pt_change_delay:
           type: integer
@@ -547,12 +570,25 @@ components:
         driving_time_to_station:
           type: integer
           description: Maximum driving time to station in seconds (for driving+train)
+        cycling_time_to_station:
+          type: integer
+          description: Maximum cycling time to station in seconds (for cycling+public_transport)
         parking_time:
           type: integer
           description: Time in seconds for parking
         boarding_time:
           type: integer
           description: Time in seconds for boarding
+        disable_border_crossing:
+          type: boolean
+          description: Disable crossing country borders (driving only)
+        max_changes:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            limit:
+              type: integer
 
     RequestTransportationFast:
       type: object
@@ -564,6 +600,11 @@ components:
           enum:
             - public_transport
             - driving
+            - cycling
+            - walking
+            - walking+ferry
+            - cycling+ferry
+            - driving+ferry
             - driving+public_transport
           description: Transportation mode for fast endpoints
     
@@ -597,6 +638,8 @@ components:
             $ref: '#/components/schemas/RequestRoutesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
 
     RequestRoutesArrivalSearch:
       type: object
@@ -628,6 +671,8 @@ components:
             $ref: '#/components/schemas/RequestRoutesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
 
     RequestTimeFilter:
       type: object
@@ -748,9 +793,6 @@ components:
 
     RequestLevelOfDetail:
       type: object
-      required:
-        - scale_type
-        - level
       properties:
         scale_type:
           type: string
@@ -768,6 +810,17 @@ components:
             - high
             - highest
           description: Level of detail for the polygon
+
+    RequestPolygonsFilter:
+      type: object
+      properties:
+        largest_area:
+          type: boolean
+          description: Only return the largest polygon
+        smallest_inner_area:
+          type: number
+          format: double
+          description: Minimum area of inner holes to include
 
     RequestUnionOnIntersection:
       type: object
@@ -810,6 +863,13 @@ components:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         level_of_detail:
           $ref: '#/components/schemas/RequestLevelOfDetail'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        polygons_filter:
+          $ref: '#/components/schemas/RequestPolygonsFilter'
+        remove_water_bodies:
+          type: boolean
+          description: Remove water bodies from the polygons
 
     RequestTimeMapArrivalSearch:
       type: object
@@ -838,6 +898,12 @@ components:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         level_of_detail:
           $ref: '#/components/schemas/RequestLevelOfDetail'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        polygons_filter:
+          $ref: '#/components/schemas/RequestPolygonsFilter'
+        remove_water_bodies:
+          type: boolean
 
     RequestTimeMap:
       type: object
