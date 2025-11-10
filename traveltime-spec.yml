@@ -2,21 +2,42 @@ openapi: "3.1.0"
 
 info:
   title: TravelTime API
+  description: |
+    The TravelTime API allows you to calculate travel times, distances, and create isochrones using various transportation modes.
+    It provides endpoints for time filtering, route planning, geocoding, and specialized geographic analysis.
   termsOfService: https://www.traveltime.com/terms-and-conditions
   contact:
     name: API Support
     email: support@igeolise.com
-  version: 1.2.3
+  version: 1.3.0
 
 servers:
   - url: https://api.traveltimeapp.com
+    description: Production server
 
 externalDocs:
-  url: http://docs.traveltime.com
+  description: Full API Documentation
+  url: https://docs.traveltime.com/api/overview/introduction
 
 security:
   - ApplicationId: []
     ApiKey: []
+
+tags:
+  - name: Time Filter
+    description: Calculate travel times and distances between locations
+  - name: Time Map
+    description: Generate isochrone polygons showing reachable areas
+  - name: Routes
+    description: Calculate detailed routes with turn-by-turn directions
+  - name: Geocoding
+    description: Convert addresses to coordinates and vice versa
+  - name: Distance Map
+    description: Create distance-based catchment areas
+  - name: Specialized Analysis
+    description: H3, Geohash, and UK postcode analysis
+  - name: Utility
+    description: Map information and location support endpoints
 
 components:
   securitySchemes:
@@ -24,11 +45,13 @@ components:
       type: apiKey
       name: X-Application-Id
       in: header
+      description: Your TravelTime Application ID
     
     ApiKey:
       type: apiKey
       name: X-Api-Key
       in: header
+      description: Your TravelTime API Key
 
   schemas:
     Coords:
@@ -40,12 +63,31 @@ components:
         lat:
           type: number
           format: double
+          description: Latitude in decimal degrees
+          minimum: -90
+          maximum: 90
         lng:
           type: number
           format: double
+          description: Longitude in decimal degrees
+          minimum: -180
+          maximum: 180
+
+    RequestLocation:
+      type: object
+      required:
+        - id
+        - coords
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the location
+        coords:
+          $ref: '#/components/schemas/Coords'
 
     RequestSearchId:
       type: string
+      description: Unique identifier for the search
 
     RequestDepartureArrivalLocationOne:
       type: string
@@ -54,13 +96,22 @@ components:
       type: integer
       minimum: 60
       maximum: 14400
+      description: Maximum travel time in seconds (1 minute to 4 hours)
+
+    RequestTravelDistance:
+      type: integer
+      minimum: 75
+      maximum: 800000
+      description: Maximum travel distance in meters
 
     RequestDepartureArrivalTime:
       type: string
       format: date-time
+      description: Departure or arrival time in ISO 8601 format
 
     ResponseLocalTime:
       type: string
+      description: Local time at the location
 
     RequestRoutesProperty:
       type: string
@@ -86,6 +137,7 @@ components:
       type: integer
       minimum: 1
       maximum: 43200
+      description: Width of the search window in seconds
 
     RequestRangeFull:
       type: object
@@ -100,6 +152,7 @@ components:
           type: integer
           minimum: 1
           maximum: 5
+          description: Maximum number of results to return
         width:
           $ref: '#/components/schemas/RequestRangeWidth'
 
@@ -123,6 +176,9 @@ components:
     RequestTimeFilterPostcodeDistrictsReachablePostcodesThreshold:
       type: number
       format: double
+      minimum: 0
+      maximum: 1
+      description: Minimum percentage of postcodes that must be reachable
 
     RequestTimeFilterPostcodeDistrictsProperty:
       type: string
@@ -134,6 +190,8 @@ components:
     RequestTimeFilterPostcodeSectorsReachablePostcodesThreshold:
       type: number
       format: double
+      minimum: 0
+      maximum: 1
 
     RequestTimeFilterPostcodeSectorsProperty:
       type: string
@@ -155,6 +213,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -183,6 +243,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -211,6 +273,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -239,6 +303,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -266,6 +332,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -291,6 +359,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -376,6 +446,7 @@ components:
       type: string
       enum:
         - weekday_morning
+      description: Pre-defined time period for fast endpoints
     
     RequestTimeFilterFastProperty:
       type: string
@@ -447,6 +518,42 @@ components:
           items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
 
+    RequestTransportation:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - cycling
+            - driving
+            - driving+train
+            - public_transport
+            - walking
+            - coach
+            - bus
+            - train
+            - ferry
+            - driving+ferry
+            - cycling+ferry
+          description: Mode of transportation
+        pt_change_delay:
+          type: integer
+          description: Time in seconds for changing between public transport modes
+        walking_time:
+          type: integer
+          description: Maximum walking time in seconds
+        driving_time_to_station:
+          type: integer
+          description: Maximum driving time to station in seconds (for driving+train)
+        parking_time:
+          type: integer
+          description: Time in seconds for parking
+        boarding_time:
+          type: integer
+          description: Time in seconds for boarding
+
     RequestTransportationFast:
       type: object
       required:
@@ -458,6 +565,7 @@ components:
             - public_transport
             - driving
             - driving+public_transport
+          description: Transportation mode for fast endpoints
     
     RequestRoutesDepartureSearch:
       type: object
@@ -648,6 +756,9 @@ components:
           type: string
           enum:
             - simple
+            - simple_numeric
+            - coarse_grid
+          description: Type of scale for level of detail
         level:
           type: string
           enum:
@@ -656,6 +767,7 @@ components:
             - medium
             - high
             - highest
+          description: Level of detail for the polygon
 
     RequestUnionOnIntersection:
       type: object
@@ -669,6 +781,7 @@ components:
           type: array
           items:
             type: string
+          description: IDs of searches to union or intersect
 
     RequestTimeMapDepartureSearch:
       type: object
@@ -750,6 +863,92 @@ components:
           items:
             $ref: '#/components/schemas/RequestUnionOnIntersection'
 
+    RequestDistanceMapDepartureSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_distance
+        - departure_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_distance:
+          $ref: '#/components/schemas/RequestTravelDistance'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        level_of_detail:
+          $ref: '#/components/schemas/RequestLevelOfDetail'
+
+    RequestDistanceMap:
+      type: object
+      required:
+        - departure_searches
+      properties:
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestDistanceMapDepartureSearch'
+
+    RequestGeocodingSearch:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: Address, postcode, or venue to geocode
+        within_country:
+          type: array
+          items:
+            type: string
+          description: Restrict results to specific countries (ISO 3166-1 alpha-2 or alpha-3)
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+          description: Maximum number of results to return
+        bounds:
+          type: string
+          description: Bounding box to restrict results (min-lat,min-lng,max-lat,max-lng)
+        format_name:
+          type: boolean
+          description: Format the name field as a well-formatted address
+        format_exclude_country:
+          type: boolean
+          description: Exclude country from formatted name
+
+    RequestReverseGeocodingSearch:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          description: Latitude of the location
+        lng:
+          type: number
+          format: double
+          description: Longitude of the location
+
+    RequestSupportedLocations:
+      type: object
+      required:
+        - locations
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestLocation'
+
     ResponseSearchId:
       type: string
 
@@ -758,9 +957,11 @@ components:
 
     ResponseTravelTime:
       type: integer
+      description: Travel time in seconds
 
     ResponseDistance:
       type: integer
+      description: Distance in meters
 
     ResponseTransportationMode:
       type: string
@@ -942,6 +1143,46 @@ components:
         route:
           $ref: '#/components/schemas/ResponseRoute'
 
+    ResponseTimeFilterLocation:
+      type: object
+      required:
+        - id
+        - properties
+      properties:
+        id:
+          type: string
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterProperties'
+
+    ResponseTimeFilterResult:
+      type: object
+      required:
+        - search_id
+        - locations
+      properties:
+        search_id:
+          type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterLocation'
+        unreachable:
+          type: array
+          items:
+            type: string
+
+    ResponseTimeFilterResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterResult'
+
     ResponseTravelTimeStatistics:
       type: object
       required:
@@ -1009,32 +1250,6 @@ components:
         route:
           $ref: '#/components/schemas/ResponseRoute'
 
-    ResponseTimeFilterLocation:
-      type: object
-      required:
-        - id
-        - properties
-      properties:
-        id:
-          $ref: '#/components/schemas/ResponseLocationId'
-        properties:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterProperties'
-    
-    ResponseTimeFilterFastLocation:
-      type: object
-      required:
-        - id
-        - properties
-      properties:
-        id:
-          $ref: '#/components/schemas/ResponseLocationId'
-        properties:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterFastProperties'
-
     ResponseRoutesLocation:
       type: object
       required:
@@ -1042,131 +1257,20 @@ components:
         - properties
       properties:
         id:
-          $ref: '#/components/schemas/ResponseLocationId'
+          type: string
         properties:
           type: array
           items:
             $ref: '#/components/schemas/ResponseRoutesProperties'
-    
-    ResponseTimeFilterPostcode:
-      type: object
-      required:
-        - code
-        - properties
-      properties:
-        code:
-          type: string
-        properties:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodesProperties'
-
-    ResponseTimeFilterPostcodeDistrict:
-      type: object
-      required:
-        - code
-        - properties
-      properties:
-        code:
-          type: string
-        properties:
-          $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictProperties'
-    
-    ResponseTimeFilterPostcodeSector:
-      type: object
-      required:
-        - code
-        - properties
-      properties:
-        code:
-          type: string
-        properties:
-          $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorProperties'
-
-    ResponseTimeFilterResult:
-      type: object
-      required:
-        - search_id
-        - locations
-        - unreachable
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        locations:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterLocation'
-        unreachable:
-          type: array
-          items:
-            type: string
-    
-    ResponseTimeFilterPostcodesResult:
-      type: object
-      required:
-        - search_id
-        - postcodes
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        postcodes:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcode'
-
-    ResponseTimeFilterPostcodeDistrictsResult:
-      type: object
-      required:
-        - search_id
-        - districts
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        districts:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrict'
-    
-    ResponseTimeFilterPostcodeSectorsResult:
-      type: object
-      required:
-        - search_id
-        - sectors
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        sectors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSector'
-
-    ResponseTimeFilterFastResult:
-      type: object
-      required:
-        - search_id
-        - locations
-        - unreachable
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        locations:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterFastLocation'
-        unreachable:
-          type: array
-          items:
-            type: string
 
     ResponseRoutesResult:
       type: object
       required:
         - search_id
         - locations
-        - unreachable
       properties:
         search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
+          type: string
         locations:
           type: array
           items:
@@ -1176,57 +1280,7 @@ components:
           items:
             type: string
 
-    ResponseTimeFilter:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterResult'
-    
-    ResponseTimeFilterPostcodes:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodesResult'
-
-    ResponseTimeFilterPostcodeDistricts:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictsResult'
-    
-    ResponseTimeFilterPostcodeSectors:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorsResult'
-
-    ResponseTimeFilterFast:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeFilterFastResult'
-
-    ResponseRoutes:
+    ResponseRoutesResponse:
       type: object
       required:
         - results
@@ -1236,83 +1290,38 @@ components:
           items:
             $ref: '#/components/schemas/ResponseRoutesResult'
 
-    ResponseShape:
-      type: object
-      required:
-        - shell
-        - holes
-      properties:
-        shell:
-          type: array
-          items:
-            $ref: '#/components/schemas/Coords'
-        holes:
-          type: array
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Coords'
-
-    ResponseBox:
-      type: object
-      required:
-        - min_lat
-        - max_lat
-        - min_lng
-        - max_lng
-      properties:
-        min_lat:
-          type: number
-          format: double
-        max_lat:
-          type: number
-          format: double
-        min_lng:
-          type: number
-          format: double
-        max_lng:
-          type: number
-          format: double
-
-    ResponseBoundingBox:
-      type: object
-      required:
-        - envelope
-        - boxes
-      properties:
-        envelope:
-          $ref: '#/components/schemas/ResponseBox'
-        boxes:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseBox'
-
-    ResponseTimeMapProperties:
-      type: object
-      properties:
-        is_only_walking:
-          type: boolean
-
-    ResponseWktShape:
-      type: string
-
     ResponseTimeMapResult:
       type: object
       required:
         - search_id
         - shapes
-        - properties
       properties:
         search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
+          type: string
         shapes:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseShape'
+            type: object
+            required:
+              - shell
+            properties:
+              shell:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coords'
+              holes:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Coords'
         properties:
-          $ref: '#/components/schemas/ResponseTimeMapProperties'
+          type: object
+          properties:
+            is_only_walking:
+              type: boolean
 
-    ResponseTimeMap:
+    ResponseTimeMapResponse:
       type: object
       required:
         - results
@@ -1322,93 +1331,81 @@ components:
           items:
             $ref: '#/components/schemas/ResponseTimeMapResult'
 
-    ResponseTimeMapWktResult:
-      type: object
-      required:
-        - search_id
-        - shape
-        - properties
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        shape:
-          $ref: '#/components/schemas/ResponseWktShape'
-        properties:
-          $ref: '#/components/schemas/ResponseTimeMapProperties'
-
-    ResponseTimeMapWkt:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeMapWktResult'
-
-    ResponseTimeMapBoundingBoxesResult:
-      type: object
-      required:
-        - search_id
-        - bounding_boxes
-        - properties
-      properties:
-        search_id:
-          $ref: '#/components/schemas/ResponseSearchId'
-        bounding_boxes:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseBoundingBox'
-        properties:
-          $ref: '#/components/schemas/ResponseTimeMapProperties'
-
-    ResponseTimeMapBoundingBoxes:
-      type: object
-      required:
-        - results
-      properties:
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseTimeMapBoundingBoxesResult'
-
-    RequestTransportation:
+    ResponseGeocodingFeature:
       type: object
       required:
         - type
+        - geometry
+        - properties
       properties:
         type:
           type: string
           enum:
-            - cycling
-            - driving
-            - driving+train
-            - public_transport
-            - walking
-            - coach
-            - bus
-            - train
-            - ferry
-            - driving+ferry
-            - cycling+ferry
-            - cycling+public_transport
-        disable_border_crossing:
-          type: boolean
-        pt_change_delay:
-          type: integer
-        walking_time:
-          type: integer
-        driving_time_to_station:
-          type: integer
-        cycling_time_to_station:
-          type: integer
-        parking_time:
-          type: integer
-        boarding_time:
-          type: integer
+            - Feature
+        geometry:
+          type: object
+          required:
+            - type
+            - coordinates
+          properties:
+            type:
+              type: string
+              enum:
+                - Point
+            coordinates:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+        properties:
+          type: object
+          properties:
+            name:
+              type: string
+            label:
+              type: string
+            score:
+              type: number
+            house_number:
+              type: string
+            street:
+              type: string
+            region:
+              type: string
+            region_code:
+              type: string
+            neighbourhood:
+              type: string
+            county:
+              type: string
+            macroregion:
+              type: string
+            city:
+              type: string
+            country:
+              type: string
+            country_code:
+              type: string
+            continent:
+              type: string
 
-    RequestLocationId:
-      type: string
+    ResponseGeocodingResponse:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum:
+            - FeatureCollection
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseGeocodingFeature'
+        attribution:
+          type: string
 
     ResponseSupportedLocation:
       type: object
@@ -1420,8 +1417,12 @@ components:
           type: string
         map_name:
           type: string
+        additional_map_names:
+          type: array
+          items:
+            type: string
 
-    ResponseSupportedLocations:
+    ResponseSupportedLocationsResponse:
       type: object
       required:
         - locations
@@ -1436,154 +1437,15 @@ components:
           items:
             type: string
 
-    RequestSupportedLocations:
-      type: object
-      required:
-        - locations
-      properties:
-        locations:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/RequestLocation'
-
-    RequestLocation:
-      type: object
-      required:
-        - id
-        - coords
-      properties:
-        id:
-          $ref: '#/components/schemas/RequestLocationId'
-        coords:
-          $ref: '#/components/schemas/Coords'
-
-    ResponseError:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/error-response
-      type: object
-      properties:
-        http_status:
-          type: integer
-        error_code:
-          type: integer
-        description:
-          type: string
-        documentation_link:
-          type: string
-        additional_info:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-
-    ResponseGeocodingGeometry:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-        coordinates:
-          type: array
-          items:
-            type: number
-            format: double
-
-    ResponseMapInfoFeaturesPublicTransport:
-      type: object
-      required:
-        - date_start
-        - date_end
-      properties:
-        date_start:
-          type: string
-          format: date-time
-        date_end:
-          type: string
-          format: date-time
-    
     ResponseMapInfoFeatures:
       type: object
-      required:
-        - fares
-        - postcodes
       properties:
-        public_transport:
-          $ref: '#/components/schemas/ResponseMapInfoFeaturesPublicTransport'
         fares:
           type: boolean
         postcodes:
           type: boolean
-
-    ResponseGeocodingProperties:
-      type: object
-      required:
-        - name
-        - label
-      properties:
-        name:
-          type: string
-        label:
-          type: string
-        score:
-          type: number
-          format: double
-        house_number:
-          type: string
-        street:
-          type: string
-        region:
-          type: string
-        region_code:
-          type: string
-        neighbourhood:
-          type: string
-        county:
-          type: string
-        macroregion:
-          type: string
-        city:
-          type: string
-        country:
-          type: string
-        country_code:
-          type: string
-        continent:
-          type: string
-        postcode:
-          type: string
-        features:
-          $ref: '#/components/schemas/ResponseMapInfoFeatures'
-    
-    ResponseGeocodingGeoJsonFeature:
-      type: object
-      required:
-        - type
-        - geometry
-        - properties
-      properties:
-        type:
-          type: string
-        geometry:
-          $ref: '#/components/schemas/ResponseGeocodingGeometry'
-        properties:
-          $ref: '#/components/schemas/ResponseGeocodingProperties'
-    
-    ResponseGeocoding:
-      type: object
-      required:
-        - type
-        - features
-      properties:
-        type:
-          type: string
-        features:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseGeocodingGeoJsonFeature'
+        public_transport:
+          type: boolean
 
     ResponseMapInfoMap:
       type: object
@@ -1596,7 +1458,7 @@ components:
         features:
           $ref: '#/components/schemas/ResponseMapInfoFeatures'
 
-    ResponseMapInfo:
+    ResponseMapInfoResponse:
       type: object
       required:
         - maps
@@ -1606,338 +1468,373 @@ components:
           items:
             $ref: '#/components/schemas/ResponseMapInfoMap'
 
-  requestBodies:
-    TimeFilter:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestTimeFilter'
-    
-    TimeFilterPostcodes:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestTimeFilterPostcodes'
-
-    TimeFilterPostcodeDistricts:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestTimeFilterPostcodeDistricts'
-
-    TimeFilterPostcodeSectors:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestTimeFilterPostcodeSectors'
-
-    TimeFilterFast:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestTimeFilterFast'
-
-    Routes:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestRoutes'
-
-    TimeMap:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestTimeMap'
-
-    SupportedLocations:
-      required: true
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/RequestSupportedLocations'
-
-  responses:
-    Error:
-      description: 'The json body returned upon error. [Docs link](http://docs.traveltime.com/reference/error-response)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseError'
-
-    TimeFilter:
-      description: 'Given origin and destination points filter out points that cannot be reached within specified time limit. [Docs link](http://docs.traveltime.com/reference/time-filter)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeFilter'
-    
-    TimeFilterPostcodes:
-      description: 'Find reachable postcodes from origin and get statistics about such postcodes. [Docs link](http://docs.traveltime.com/reference/postcode-search/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodes'
-
-    TimeFilterPostcodeDistricts:
-      description: 'Find districts that have a certain coverage from origin and get statistics about postcodes within such districts. [Docs link](http://docs.traveltime.com/reference/postcode-district-filter/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistricts'
-    
-    TimeFilterPostcodeSectors:
-      description: 'Find sectors that have a certain coverage from origin and get statistics about postcodes within such sectors. [Docs link](http://docs.traveltime.com/reference/postcode-sector-filter/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectors'
-    
-    TimeFilterFast:
-      description: 'A very fast version of Time Filter. [Docs link](http://docs.traveltime.com/reference/time-filter-fast/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeFilterFast'
-
-    Routes:
-      description: 'Returns routing information between source and destinations. [Docs link](http://docs.traveltime.com/reference/routes/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseRoutes'
-    
-    Geocoding:
-      description: 'Match a query string to geographic coordinates. [Docs link](http://docs.traveltime.com/reference/geocoding-search/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseGeocoding'
-
-    TimeMap:
-      description: 'Given origin coordinates, find shapes of zones reachable within corresponding travel time. [Docs link](http://docs.traveltime.com/reference/time-map/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeMap'
-        'application/vnd.wkt+json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeMapWkt'
-        'application/vnd.wkt-no-holes+json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeMapWkt'
-        'application/vnd.bounding-boxes+json':
-          schema:
-            $ref: '#/components/schemas/ResponseTimeMapBoundingBoxes'
-
-    MapInfo:
-      description: 'Returns information about currently supported countries. [Docs link](http://docs.traveltime.com/reference/map-info/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseMapInfo'
-
-    SupportedLocations:
-      description: 'Find out what points are supported by our api. [Docs link](http://docs.traveltime.com/reference/supported-locations/)'
-      content:
-        'application/json':
-          schema:
-            $ref: '#/components/schemas/ResponseSupportedLocations'
-
-  parameters:
-    GeocodingWithinCountry:
-      name: within.country
-      in: query
-      schema:
-        type: string
-    
-    GeocodingQuery:
-      name: query
-      in: query
-      required: true
-      schema:
-        type: string
-    
-    GeocodingFocusLat:
-      name: focus.lat
-      in: query
-      schema:
-        type: number
-        format: double
-    
-    GeocodingFocusLng:
-      name: focus.lng
-      in: query
-      schema:
-        type: number
-        format: double
-    
-    GeocodingReverseLat:
-      name: lat
-      in: query
-      required: true
-      schema:
-        type: number
-        format: double
-    
-    GeocodingReverseLng:
-      name: lng
-      in: query
-      required: true
-      schema:
-        type: number
-        format: double
-
+    ErrorResponse:
+      type: object
+      required:
+        - error_code
+        - description
+      properties:
+        error_code:
+          type: integer
+        description:
+          type: string
+        documentation_link:
+          type: string
+        additional_info:
+          type: object
 
 paths:
   /v4/time-filter:
     post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/time-filter
+      tags:
+        - Time Filter
+      summary: Time Filter (Time Matrix)
+      description: |
+        Calculate travel times and distances between multiple origins and destinations.
+        Supports up to 2,000 locations per search with customizable parameters.
       operationId: timeFilter
       requestBody:
-        $ref: '#/components/requestBodies/TimeFilter'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeFilter'
       responses:
         '200':
-          $ref: '#/components/responses/TimeFilter'
-        default:
-          $ref: '#/components/responses/Error'
-      
-  /v4/time-filter/postcodes:
-    post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/postcode-search
-      operationId: timeFilterPostcodes
-      requestBody:
-        $ref: '#/components/requestBodies/TimeFilterPostcodes'
-      responses:
-        '200':
-          $ref: '#/components/responses/TimeFilterPostcodes'
-        default:
-          $ref: '#/components/responses/Error'
-  
-  /v4/time-filter/postcode-districts:
-    post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/postcode-search
-      operationId: timeFilterPostcodeDistricts
-      requestBody:
-        $ref: '#/components/requestBodies/TimeFilterPostcodeDistricts'
-      responses:
-        '200':
-          $ref: '#/components/responses/TimeFilterPostcodeDistricts'
-        default:
-          $ref: '#/components/responses/Error'
-  
-  /v4/time-filter/postcode-sectors:
-    post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/postcode-sector-filter
-      operationId: timeFilterPostcodeSectors
-      requestBody:
-        $ref: '#/components/requestBodies/TimeFilterPostcodeSectors'
-      responses:
-        '200':
-          $ref: '#/components/responses/TimeFilterPostcodeSectors'
-        default:
-          $ref: '#/components/responses/Error'
-  
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeFilterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /v4/time-filter/fast:
     post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/time-filter-fast
+      tags:
+        - Time Filter
+      summary: Time Filter Fast
+      description: |
+        High-performance endpoint for calculating travel times between up to 100,000 locations.
+        Uses pre-computed data for faster response times.
       operationId: timeFilterFast
       requestBody:
-        $ref: '#/components/requestBodies/TimeFilterFast'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeFilterFast'
       responses:
         '200':
-          $ref: '#/components/responses/TimeFilterFast'
-        default:
-          $ref: '#/components/responses/Error'
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeFilterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /v4/time-map:
+  /v4/time-filter/postcodes:
     post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/time-map
-      operationId: timeMap
+      tags:
+        - Specialized Analysis
+      summary: Time Filter Postcodes
+      description: Filter UK postcodes by travel time
+      operationId: timeFilterPostcodes
       requestBody:
-        $ref: '#/components/requestBodies/TimeMap'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeFilterPostcodes'
       responses:
         '200':
-          $ref: '#/components/responses/TimeMap'
-        default:
-          $ref: '#/components/responses/Error'
+          description: Successful response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/time-filter/postcode-districts:
+    post:
+      tags:
+        - Specialized Analysis
+      summary: Time Filter Postcode Districts
+      description: Filter UK postcode districts by travel time
+      operationId: timeFilterPostcodeDistricts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeFilterPostcodeDistricts'
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/time-filter/postcode-sectors:
+    post:
+      tags:
+        - Specialized Analysis
+      summary: Time Filter Postcode Sectors
+      description: Filter UK postcode sectors by travel time
+      operationId: timeFilterPostcodeSectors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeFilterPostcodeSectors'
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/routes:
     post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/routes
+      tags:
+        - Routes
+      summary: Routes
+      description: |
+        Calculate detailed routes with turn-by-turn directions between locations.
+        Supports multiple transportation modes and returns route geometry.
       operationId: routes
       requestBody:
-        $ref: '#/components/requestBodies/Routes'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestRoutes'
       responses:
         '200':
-          $ref: '#/components/responses/Routes'
-        default:
-          $ref: '#/components/responses/Error'
-  
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseRoutesResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/time-map:
+    post:
+      tags:
+        - Time Map
+      summary: Time Map (Isochrones)
+      description: |
+        Generate isochrone polygons showing areas reachable within a given travel time.
+        Returns polygon coordinates that can be visualized on a map.
+      operationId: timeMap
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeMap'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeMapResponse'
+            application/geo+json:
+              schema:
+                type: object
+                description: GeoJSON FeatureCollection with isochrone polygons
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/distance-map:
+    post:
+      tags:
+        - Distance Map
+      summary: Distance Map
+      description: |
+        Generate isodistance polygons showing areas reachable within a given travel distance.
+        Similar to time-map but based on distance rather than time.
+      operationId: distanceMap
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestDistanceMap'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeMapResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /v4/geocoding/search:
     get:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/geocoding-search
+      tags:
+        - Geocoding
+      summary: Geocoding Search
+      description: Convert address or place name to coordinates (forward geocoding)
       operationId: geocodingSearch
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Address, postcode, or venue to geocode
+        - name: within.country
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Restrict results to specific countries
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+          description: Maximum number of results
+        - name: bounds
+          in: query
+          schema:
+            type: string
+          description: Bounding box to restrict results
       responses:
         '200':
-          $ref: '#/components/responses/Geocoding'
-        default:
-          $ref: '#/components/responses/Error'
-      parameters:
-        - $ref: '#/components/parameters/GeocodingQuery'
-        - $ref: '#/components/parameters/GeocodingFocusLat'
-        - $ref: '#/components/parameters/GeocodingFocusLng'
-        - $ref: '#/components/parameters/GeocodingWithinCountry'
-  
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGeocodingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /v4/geocoding/reverse:
     get:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/geocoding-reverse
-      operationId: geocodingReverseSearch
+      tags:
+        - Geocoding
+      summary: Reverse Geocoding
+      description: Convert coordinates to address (reverse geocoding)
+      operationId: reverseGeocoding
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Latitude coordinate
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Longitude coordinate
       responses:
         '200':
-          $ref: '#/components/responses/Geocoding'
-        default:
-          $ref: '#/components/responses/Error'
-      parameters:
-        - $ref: '#/components/parameters/GeocodingReverseLat'
-        - $ref: '#/components/parameters/GeocodingReverseLng'
-        - $ref: '#/components/parameters/GeocodingWithinCountry'
-  
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGeocodingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /v4/map-info:
     get:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/map-info
+      tags:
+        - Utility
+      summary: Map Info
+      description: Get information about supported countries and features
       operationId: mapInfo
       responses:
         '200':
-          $ref: '#/components/responses/MapInfo'
-        default:
-          $ref: '#/components/responses/Error'
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMapInfoResponse'
 
   /v4/supported-locations:
     post:
-      externalDocs:
-        url: http://docs.traveltime.com/reference/supported-locations
+      tags:
+        - Utility
+      summary: Supported Locations
+      description: Check if specific locations are supported by the API
       operationId: supportedLocations
       requestBody:
-        $ref: '#/components/requestBodies/SupportedLocations'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestSupportedLocations'
       responses:
         '200':
-          $ref: '#/components/responses/SupportedLocations'
-        default:
-          $ref: '#/components/responses/Error'
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSupportedLocationsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
