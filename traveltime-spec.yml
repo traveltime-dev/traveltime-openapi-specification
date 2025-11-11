@@ -1,4 +1,4 @@
-openapi: "3.1.0"
+openapi: "3.1.1"
 
 info:
   title: TravelTime API
@@ -98,6 +98,24 @@ components:
       maximum: 14400
       description: Maximum travel time in seconds (1 minute to 4 hours)
 
+    RequestTravelTimeFast:
+      type: integer
+      minimum: 60
+      maximum: 10800
+      description: Maximum travel time in seconds (1 minute to 3 hours)
+
+    RequestTravelTimeH3Fast:
+      type: integer
+      minimum: 60
+      maximum: 10800
+      description: Maximum travel time in seconds (up to 3 hours). Note that the actual maximum depends on the resolution parameter. Limitations can be found at https://docs.traveltime.com/api/reference/h3-fast#limits-of-resolution-and-traveltime
+
+    RequestTravelTimeH3:
+      type: integer
+      minimum: 60
+      maximum: 36000
+      description: Maximum travel time in seconds (up to 10 hours). Note that the actual maximum depends on the resolution parameter. Limitations can be found at https://docs.traveltime.com/api/reference/h3#limits-of-resolution-and-traveltime
+
     RequestTravelDistance:
       type: integer
       minimum: 75
@@ -178,12 +196,23 @@ components:
           enum:
             - enabled
             - disabled
-          description: Control road network lookup behavior
+          description: |
+            Controls whether walking distances to/from the nearest road are included in travel time/distance.
+            - enabled (default): Walking time/distance from departure to nearest road and from nearest road to arrival are added to totals
+            - disabled: Journey starts/ends at the nearest road network point, excluding walking portions
         accept_roads:
-          type: array
-          items:
-            type: string
-          description: List of road types to accept
+          type: string
+          enum:
+            - both_drivable_and_walkable
+            - any_drivable
+          description: |
+            Controls which road types can serve as journey start/end points.
+            - both_drivable_and_walkable (default): Only roads accessible by both cars and pedestrians, preventing routes from starting/ending on motorways
+            - any_drivable: Any road accessible by car, including motorways
+        threshold:
+          type: integer
+          description: Maximum distance in meters between locations and the nearest accessible road. Default is 1000 meters. Departure locations exceeding this return errors, arrival locations return unreachable results
+          default: 1000
 
     RequestTimeFilterPostcodesProperty:
       type: string
@@ -247,6 +276,8 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
     
     RequestTimeFilterPostcodeSectorsArrivalSearch:
       type: object
@@ -277,12 +308,14 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeSectorsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
     
     RequestTimeFilterPostcodeDistrictsDepartureSearch:
       type: object
       required:
         - id
-        - coords        
+        - coords
         - transportation
         - travel_time
         - departure_time
@@ -307,12 +340,14 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
     
     RequestTimeFilterPostcodeDistrictsArrivalSearch:
       type: object
       required:
         - id
-        - coords        
+        - coords
         - transportation
         - travel_time
         - arrival_time
@@ -337,12 +372,14 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterPostcodeDistrictsProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
     
     RequestTimeFilterPostcodesDepartureSearch:
       type: object
       required:
         - id
-        - coords        
+        - coords
         - transportation
         - travel_time
         - departure_time
@@ -364,12 +401,14 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterPostcodesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
     
     RequestTimeFilterPostcodesArrivalSearch:
       type: object
       required:
         - id
-        - coords        
+        - coords
         - transportation
         - travel_time
         - arrival_time
@@ -391,6 +430,8 @@ components:
             $ref: '#/components/schemas/RequestTimeFilterPostcodesProperty'
         range:
           $ref: '#/components/schemas/RequestRangeFull'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
     
     RequestTimeFilterDepartureSearch:
       type: object
@@ -474,7 +515,13 @@ components:
       type: string
       enum:
         - travel_time
+        - distance
         - fares
+      description: |
+        Properties to return for fast time filter searches.
+        - travel_time: Travel duration in seconds
+        - distance: Journey distance in meters (only available for driving+ferry, cycling+ferry, and walking+ferry transportation types)
+        - fares: Pricing information (UK locations only)
     
     RequestTimeFilterFastArrivalManyToOneSearch:
       type: object
@@ -500,7 +547,7 @@ components:
         transportation:
           $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+          $ref: '#/components/schemas/RequestTravelTimeFast'
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
@@ -532,7 +579,7 @@ components:
         transportation:
           $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
-          $ref: '#/components/schemas/RequestTravelTime'
+          $ref: '#/components/schemas/RequestTravelTimeFast'
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         properties:
@@ -551,6 +598,7 @@ components:
             - cycling
             - driving
             - driving+train
+            - driving+public_transport
             - public_transport
             - walking
             - coach
@@ -582,6 +630,21 @@ components:
         disable_border_crossing:
           type: boolean
           description: Disable crossing country borders (driving only)
+        include_roads:
+          type: array
+          items:
+            type: string
+            enum:
+              - track
+              - restricted
+          description: Additional road types to include when executing search. Only affects driving and driving+ferry transportation modes. track = unpaved roads that only allow very slow driving speed or may require an off-road capable vehicle. restricted = roads that are not publicly accessible and may require a special permit. By default all of these roads are excluded from the search.
+        traffic_model:
+          type: string
+          enum:
+            - balanced
+            - optimistic
+            - pessimistic
+          description: Specifies how traffic conditions are accounted for in driving modes. balanced (default) = uses typical traffic conditions. optimistic = uses lighter traffic conditions, resulting in shorter travel times. pessimistic = uses heavier traffic conditions, resulting in longer travel times. Used in driving, driving+ferry, driving+train, and driving+public_transport transportation modes.
         max_changes:
           type: object
           properties:
@@ -599,14 +662,17 @@ components:
           type: string
           enum:
             - public_transport
-            - driving
-            - cycling
-            - walking
             - walking+ferry
             - cycling+ferry
             - driving+ferry
             - driving+public_transport
           description: Transportation mode for fast endpoints
+        traffic_model:
+          type: string
+          enum:
+            - peak
+            - off_peak
+          description: Determines the level of traffic used in driving journeys. peak (default) = represents typical traffic conditions for a midweek morning. off_peak = represents typical traffic conditions at night time. Can only be specified with driving+ferry and driving+public_transport transportation types.
     
     RequestRoutesDepartureSearch:
       type: object
@@ -676,6 +742,7 @@ components:
 
     RequestTimeFilter:
       type: object
+      description: At least one of departure_searches or arrival_searches must contain items
       required:
         - locations
       properties:
@@ -697,6 +764,7 @@ components:
     
     RequestTimeFilterPostcodes:
       type: object
+      description: At least one of departure_searches or arrival_searches must contain items
       properties:
         departure_searches:
           type: array
@@ -711,6 +779,7 @@ components:
 
     RequestTimeFilterPostcodeDistricts:
       type: object
+      description: At least one of departure_searches or arrival_searches must contain items
       properties:
         departure_searches:
           type: array
@@ -725,6 +794,7 @@ components:
 
     RequestTimeFilterPostcodeSectors:
       type: object
+      description: At least one of departure_searches or arrival_searches must contain items
       properties:
         departure_searches:
           type: array
@@ -739,6 +809,7 @@ components:
 
     RequestTimeFilterFastArrivalSearches:
       type: object
+      description: At least one of many_to_one or one_to_many must contain items
       properties:
         many_to_one:
           type: array
@@ -767,6 +838,7 @@ components:
 
     RequestRoutes:
       type: object
+      description: At least one of departure_searches or arrival_searches must contain items
       required:
         - locations
       properties:
@@ -800,27 +872,34 @@ components:
             - simple
             - simple_numeric
             - coarse_grid
-          description: Type of scale for level of detail
+          description: Type of scale for level of detail. simple = level specified using simple enumeration. simple_numeric = level specified using integers (extension of simple scale). coarse_grid = level specified as a number to simplify shape to a grid density.
         level:
-          type: string
-          enum:
-            - lowest
-            - low
-            - medium
-            - high
-            - highest
-          description: Level of detail for the polygon
+          oneOf:
+            - type: string
+              enum:
+                - lowest
+                - low
+                - medium
+                - high
+                - highest
+              description: Used with simple scale_type
+            - type: integer
+              minimum: -20
+              maximum: 2
+              description: Used with simple_numeric scale_type. Lower numbers = less detail. Values -2 to 2 are equivalent to lowest to highest of simple scale.
+          description: Level of detail for the polygon. Can be string (for simple scale) or integer (for simple_numeric scale).
+        square_size:
+          type: integer
+          minimum: 600
+          description: Used with coarse_grid scale_type. Specifies the side length (in meters) of the squares used to construct the shape. Larger values = less detailed shape.
 
     RequestPolygonsFilter:
       type: object
       properties:
-        largest_area:
-          type: boolean
-          description: Only return the largest polygon
-        smallest_inner_area:
-          type: number
-          format: double
-          description: Minimum area of inner holes to include
+        limit:
+          type: integer
+          minimum: 1
+          description: At most this amount of largest polygons will be returned in a single shape. Must be greater than 0.
 
     RequestUnionOnIntersection:
       type: object
@@ -867,9 +946,18 @@ components:
           $ref: '#/components/schemas/RequestSnapping'
         polygons_filter:
           $ref: '#/components/schemas/RequestPolygonsFilter'
+        no_holes:
+          type: boolean
+          description: Enable to remove holes from returned polygons. Note that this will likely result in loss in accuracy.
+        render_mode:
+          type: string
+          enum:
+            - approximate_time_filter
+            - road_buffering
+          description: Controls how the shape is rendered. approximate_time_filter (default) = shape matches time-filter results as much as possible. road_buffering = shape looks as if traversed roads have been painted over with a wide brush.
         remove_water_bodies:
           type: boolean
-          description: Remove water bodies from the polygons
+          description: If true (default), returned shape will not cover large nearby water bodies. If false, shape may cover nearby water bodies like large lakes, wide rivers and seas.
 
     RequestTimeMapArrivalSearch:
       type: object
@@ -902,11 +990,22 @@ components:
           $ref: '#/components/schemas/RequestSnapping'
         polygons_filter:
           $ref: '#/components/schemas/RequestPolygonsFilter'
+        no_holes:
+          type: boolean
+          description: Enable to remove holes from returned polygons. Note that this will likely result in loss in accuracy.
+        render_mode:
+          type: string
+          enum:
+            - approximate_time_filter
+            - road_buffering
+          description: Controls how the shape is rendered. approximate_time_filter (default) = shape matches time-filter results as much as possible. road_buffering = shape looks as if traversed roads have been painted over with a wide brush.
         remove_water_bodies:
           type: boolean
+          description: If true (default), returned shape will not cover large nearby water bodies. If false, shape may cover nearby water bodies like large lakes, wide rivers and seas.
 
     RequestTimeMap:
       type: object
+      description: At least one of departure_searches or arrival_searches must contain items
       properties:
         departure_searches:
           type: array
@@ -950,60 +1049,543 @@ components:
           $ref: '#/components/schemas/RequestDepartureArrivalTime'
         level_of_detail:
           $ref: '#/components/schemas/RequestLevelOfDetail'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        polygons_filter:
+          $ref: '#/components/schemas/RequestPolygonsFilter'
+        no_holes:
+          type: boolean
+          description: Enable to remove holes from returned polygons. Note that this will likely result in loss in accuracy.
+
+    RequestDistanceMapArrivalSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_distance
+        - arrival_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_distance:
+          $ref: '#/components/schemas/RequestTravelDistance'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        level_of_detail:
+          $ref: '#/components/schemas/RequestLevelOfDetail'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        polygons_filter:
+          $ref: '#/components/schemas/RequestPolygonsFilter'
+        no_holes:
+          type: boolean
+          description: Enable to remove holes from returned polygons. Note that this will likely result in loss in accuracy.
 
     RequestDistanceMap:
       type: object
-      required:
-        - departure_searches
       properties:
         departure_searches:
           type: array
           maxItems: 10
           items:
             $ref: '#/components/schemas/RequestDistanceMapDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestDistanceMapArrivalSearch'
+        unions:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+          description: Define the unions of shapes from previously defined departure or arrival searches
+        intersections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+          description: Define the intersections of shapes from previously defined departure or arrival searches
 
-    RequestGeocodingSearch:
+    RequestRenderMode:
+      type: string
+      enum:
+        - approximate_time_filter
+        - road_buffering
+      description: Rendering mode for time-map/fast
+
+    RequestTimeMapFastArrivalManyToOneSearch:
       type: object
       required:
-        - query
+        - id
+        - coords
+        - transportation
+        - arrival_time_period
+        - travel_time
       properties:
-        query:
-          type: string
-          description: Address, postcode, or venue to geocode
-        within_country:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeFast'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        level_of_detail:
+          $ref: '#/components/schemas/RequestLevelOfDetail'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        polygons_filter:
+          $ref: '#/components/schemas/RequestPolygonsFilter'
+        no_holes:
+          type: boolean
+          description: Remove holes from polygons
+        render_mode:
+          $ref: '#/components/schemas/RequestRenderMode'
+
+    RequestTimeMapFastArrivalOneToManySearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - arrival_time_period
+        - travel_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeFast'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        level_of_detail:
+          $ref: '#/components/schemas/RequestLevelOfDetail'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        polygons_filter:
+          $ref: '#/components/schemas/RequestPolygonsFilter'
+        no_holes:
+          type: boolean
+          description: Remove holes from polygons
+        render_mode:
+          $ref: '#/components/schemas/RequestRenderMode'
+
+    RequestTimeMapFastArrivalSearches:
+      type: object
+      description: At least one of many_to_one or one_to_many must contain items
+      properties:
+        many_to_one:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeMapFastArrivalManyToOneSearch'
+        one_to_many:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestTimeMapFastArrivalOneToManySearch'
+
+    RequestTimeMapFast:
+      type: object
+      required:
+        - arrival_searches
+      properties:
+        arrival_searches:
+          $ref: '#/components/schemas/RequestTimeMapFastArrivalSearches'
+
+    RequestH3Resolution:
+      type: string
+      enum:
+        - "6"
+        - "7"
+        - "8"
+        - "9"
+        - "10"
+        - "11"
+        - "12"
+      description: H3 cell resolution level (6-12). Refer to relevant docs for limitations
+
+    RequestH3Property:
+      type: string
+      enum:
+        - min
+        - max
+        - mean
+      description: H3 cell properties to return
+
+    RequestH3DepartureSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - departure_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeH3'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        remove_water_bodies:
+          type: boolean
+          description: Remove water bodies from the results
+
+    RequestH3ArrivalSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - arrival_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeH3'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        remove_water_bodies:
+          type: boolean
+          description: Remove water bodies from the results
+
+    RequestH3:
+      type: object
+      required:
+        - resolution
+        - properties
+      properties:
+        resolution:
+          $ref: '#/components/schemas/RequestH3Resolution'
+        properties:
           type: array
           items:
-            type: string
-          description: Restrict results to specific countries (ISO 3166-1 alpha-2 or alpha-3)
-        limit:
-          type: integer
-          minimum: 1
-          maximum: 50
-          description: Maximum number of results to return
-        bounds:
-          type: string
-          description: Bounding box to restrict results (min-lat,min-lng,max-lat,max-lng)
-        format_name:
-          type: boolean
-          description: Format the name field as a well-formatted address
-        format_exclude_country:
-          type: boolean
-          description: Exclude country from formatted name
+            $ref: '#/components/schemas/RequestH3Property'
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestH3DepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestH3ArrivalSearch'
+        unions:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+        intersections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
 
-    RequestReverseGeocodingSearch:
+    RequestH3FastArrivalManyToOneSearch:
       type: object
       required:
-        - lat
-        - lng
+        - id
+        - coords
+        - transportation
+        - arrival_time_period
+        - travel_time
       properties:
-        lat:
-          type: number
-          format: double
-          description: Latitude of the location
-        lng:
-          type: number
-          format: double
-          description: Longitude of the location
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeH3Fast'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+
+    RequestH3FastArrivalOneToManySearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - arrival_time_period
+        - travel_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeH3Fast'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+
+    RequestH3FastArrivalSearches:
+      type: object
+      description: At least one of many_to_one or one_to_many must contain items
+      properties:
+        many_to_one:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestH3FastArrivalManyToOneSearch'
+        one_to_many:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestH3FastArrivalOneToManySearch'
+
+    RequestH3Fast:
+      type: object
+      required:
+        - resolution
+        - properties
+        - arrival_searches
+      properties:
+        resolution:
+          $ref: '#/components/schemas/RequestH3Resolution'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestH3Property'
+        arrival_searches:
+          $ref: '#/components/schemas/RequestH3FastArrivalSearches'
+        unions:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+        intersections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+
+    RequestGeohashResolution:
+      type: string
+      enum:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+      description: Geohash cell resolution level
+
+    RequestGeohashProperty:
+      type: string
+      enum:
+        - min
+        - max
+        - mean
+      description: Geohash cell properties to return
+
+    RequestGeohashDepartureSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - departure_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        departure_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        remove_water_bodies:
+          type: boolean
+          description: Remove water bodies from the results
+
+    RequestGeohashArrivalSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - travel_time
+        - arrival_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportation'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTime'
+        arrival_time:
+          $ref: '#/components/schemas/RequestDepartureArrivalTime'
+        range:
+          $ref: '#/components/schemas/RequestRangeNoMaxResults'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+        remove_water_bodies:
+          type: boolean
+          description: Remove water bodies from the results
+
+    RequestGeohash:
+      type: object
+      required:
+        - resolution
+        - properties
+      properties:
+        resolution:
+          $ref: '#/components/schemas/RequestGeohashResolution'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestGeohashProperty'
+        departure_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestGeohashDepartureSearch'
+        arrival_searches:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestGeohashArrivalSearch'
+        unions:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+        intersections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+
+    RequestGeohashFastArrivalManyToOneSearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - arrival_time_period
+        - travel_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeFast'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+
+    RequestGeohashFastArrivalOneToManySearch:
+      type: object
+      required:
+        - id
+        - coords
+        - transportation
+        - arrival_time_period
+        - travel_time
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestSearchId'
+        coords:
+          $ref: '#/components/schemas/Coords'
+        transportation:
+          $ref: '#/components/schemas/RequestTransportationFast'
+        travel_time:
+          $ref: '#/components/schemas/RequestTravelTimeFast'
+        arrival_time_period:
+          $ref: '#/components/schemas/RequestArrivalTimePeriod'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
+
+    RequestGeohashFastArrivalSearches:
+      type: object
+      description: At least one of many_to_one or one_to_many must contain items
+      properties:
+        many_to_one:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestGeohashFastArrivalManyToOneSearch'
+        one_to_many:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestGeohashFastArrivalOneToManySearch'
+
+    RequestGeohashFast:
+      type: object
+      required:
+        - resolution
+        - properties
+        - arrival_searches
+      properties:
+        resolution:
+          $ref: '#/components/schemas/RequestGeohashResolution'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestGeohashProperty'
+        arrival_searches:
+          $ref: '#/components/schemas/RequestGeohashFastArrivalSearches'
+        unions:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
+        intersections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RequestUnionOnIntersection'
 
     RequestSupportedLocations:
       type: object
@@ -1012,6 +1594,7 @@ components:
       properties:
         locations:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/RequestLocation'
 
@@ -1301,6 +1884,8 @@ components:
       properties:
         travel_time:
           $ref: '#/components/schemas/ResponseTravelTime'
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
         fares:
           $ref: '#/components/schemas/ResponseFaresFast'
 
@@ -1473,6 +2058,100 @@ components:
         attribution:
           type: string
 
+    ResponseH3Properties:
+      type: object
+      properties:
+        min:
+          type: integer
+          description: Minimum travel time in seconds
+        max:
+          type: integer
+          description: Maximum travel time in seconds
+        mean:
+          type: integer
+          description: Mean travel time in seconds
+
+    ResponseH3Cell:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: H3 cell identifier
+        properties:
+          $ref: '#/components/schemas/ResponseH3Properties'
+
+    ResponseH3Result:
+      type: object
+      required:
+        - search_id
+        - cells
+      properties:
+        search_id:
+          type: string
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseH3Cell'
+
+    ResponseH3Response:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseH3Result'
+
+    ResponseGeohashProperties:
+      type: object
+      properties:
+        min:
+          type: integer
+          description: Minimum travel time in seconds
+        max:
+          type: integer
+          description: Maximum travel time in seconds
+        mean:
+          type: integer
+          description: Mean travel time in seconds
+
+    ResponseGeohashCell:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Geohash cell identifier
+        properties:
+          $ref: '#/components/schemas/ResponseGeohashProperties'
+
+    ResponseGeohashResult:
+      type: object
+      required:
+        - search_id
+        - cells
+      properties:
+        search_id:
+          type: string
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseGeohashCell'
+
+    ResponseGeohashResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseGeohashResult'
+
     ResponseSupportedLocation:
       type: object
       required:
@@ -1508,10 +2187,36 @@ components:
       properties:
         fares:
           type: boolean
-        postcodes:
+          description: Indicates whether or not we have fare data
+        postcode:
           type: boolean
+          description: Indicates whether or not postcode searches are supported
         public_transport:
-          type: boolean
+          type: object
+          description: Public transport support information. Public transport is not supported if this object is missing.
+          properties:
+            date_start:
+              type: string
+              format: date-time
+              description: Start date of public transport data availability
+            date_end:
+              type: string
+              format: date-time
+              description: End date of public transport data availability
+        time_filter_fast:
+          type: object
+          description: Fast time-filter support information. The endpoint is not supported if this object is missing.
+          properties:
+            periods:
+              type: array
+              items:
+                type: object
+                description: Each entry describes a time period and time filter modes that are available for this country
+        cross_country_modes:
+          type: array
+          items:
+            type: string
+          description: Array of supported transportation modes while doing cross country search
 
     ResponseMapInfoMap:
       type: object
@@ -1584,6 +2289,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Too many requests
           content:
@@ -1619,6 +2330,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/time-filter/postcodes:
     post:
@@ -1638,6 +2361,18 @@ paths:
           description: Successful response
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
           content:
             application/json:
               schema:
@@ -1665,6 +2400,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/time-filter/postcode-sectors:
     post:
@@ -1684,6 +2431,18 @@ paths:
           description: Successful response
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
           content:
             application/json:
               schema:
@@ -1713,6 +2472,18 @@ paths:
                 $ref: '#/components/schemas/ResponseRoutesResponse'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
           content:
             application/json:
               schema:
@@ -1750,6 +2521,63 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/time-map/fast:
+    post:
+      tags:
+        - Time Map
+      summary: Time Map Fast
+      description: |
+        High-performance endpoint for generating isochrone polygons using pre-computed data.
+        Faster response times than the standard time-map endpoint.
+      operationId: timeMapFast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTimeMapFast'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeMapResponse'
+            application/geo+json:
+              schema:
+                type: object
+                description: GeoJSON FeatureCollection with isochrone polygons
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/distance-map:
     post:
@@ -1779,6 +2607,182 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/h3:
+    post:
+      tags:
+        - Specialized Analysis
+      summary: H3 Grid Analysis
+      description: |
+        Calculate travel times to H3 cells within a catchment area.
+        Returns min, max, and mean travel times for each H3 cell.
+      operationId: h3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestH3'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseH3Response'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/h3/fast:
+    post:
+      tags:
+        - Specialized Analysis
+      summary: H3 Grid Analysis Fast
+      description: |
+        High-performance endpoint for calculating travel times to H3 cells.
+        Uses pre-computed data for faster response times.
+      operationId: h3Fast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestH3Fast'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseH3Response'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/geohash:
+    post:
+      tags:
+        - Specialized Analysis
+      summary: Geohash Grid Analysis
+      description: |
+        Calculate travel times to geohash cells within a catchment area.
+        Returns min, max, and mean travel times for each geohash cell.
+      operationId: geohash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestGeohash'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGeohashResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v4/geohash/fast:
+    post:
+      tags:
+        - Specialized Analysis
+      summary: Geohash Grid Analysis Fast
+      description: |
+        High-performance endpoint for calculating travel times to geohash cells.
+        Uses pre-computed data for faster response times.
+      operationId: geohashFast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestGeohashFast'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGeohashResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/geocoding/search:
     get:
@@ -1793,6 +2797,7 @@ paths:
           required: true
           schema:
             type: string
+            minLength: 1
           description: Address, postcode, or venue to geocode
         - name: within.country
           in: query
@@ -1800,7 +2805,7 @@ paths:
             type: array
             items:
               type: string
-          description: Restrict results to specific countries
+          description: Restrict results to specific countries (ISO 3166-1 alpha-2 or alpha-3)
         - name: limit
           in: query
           schema:
@@ -1812,7 +2817,22 @@ paths:
           in: query
           schema:
             type: string
-          description: Bounding box to restrict results
+          description: Bounding box to restrict results (min-lat,min-lng,max-lat,max-lng). Example for Scandinavia - 54.16243,4.04297,71.18316,31.81641
+        - name: force.add.postcode
+          in: query
+          schema:
+            type: boolean
+          description: Forcefully adds postcode to search response. Only works if Switzerland (CH) is specified in within.country parameter
+        - name: format.name
+          in: query
+          schema:
+            type: boolean
+          description: Format the name field to a well formatted, human-readable address of the location (experimental)
+        - name: format.exclude.country
+          in: query
+          schema:
+            type: boolean
+          description: Exclude the country from the formatted name field (only used if format.name is true)
       responses:
         '200':
           description: Successful response
@@ -1822,6 +2842,12 @@ paths:
                 $ref: '#/components/schemas/ResponseGeocodingResponse'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -1862,6 +2888,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/map-info:
     get:
@@ -1877,6 +2909,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseMapInfoResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /v4/supported-locations:
     post:
@@ -1900,6 +2938,18 @@ paths:
                 $ref: '#/components/schemas/ResponseSupportedLocationsResponse'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
           content:
             application/json:
               schema:
