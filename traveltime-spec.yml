@@ -1620,6 +1620,7 @@ components:
         - boarding
         - walk
         - bike
+        - bike_parking
         - train
         - rail_national
         - rail_overground
@@ -1719,7 +1720,8 @@ components:
         - coords
       properties:
         id:
-          type: string
+          type: integer
+          description: A sequential id, used to relate route parts with fare data
         type:
           type: string
           enum:
@@ -1727,10 +1729,12 @@ components:
             - start_end
             - road
             - public_transport
+          description: Type of route part
         mode:
           $ref: '#/components/schemas/ResponseTransportationMode'
         directions:
           type: string
+          description: Human-readable directions for this part
         distance:
           $ref: '#/components/schemas/ResponseDistance'
         travel_time:
@@ -1739,24 +1743,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Coords'
+          description: Coordinates along this route part
         direction:
           type: string
+          description: Only available when type is start_end
         road:
           type: string
+          description: Road name. May be present on parts where type is road
         turn:
           type: string
+          description: Turn direction. May be present on parts where type is road
         line:
           type: string
+          description: Public transport line name. Only available when type is public_transport
         departure_station:
           type: string
+          description: Departure station name. Only available when type is public_transport
         arrival_station:
           type: string
+          description: Arrival station name. Only available when type is public_transport
         departs_at:
           $ref: '#/components/schemas/ResponseLocalTime'
         arrives_at:
           $ref: '#/components/schemas/ResponseLocalTime'
         num_stops:
           type: integer
+          description: Number of stops. Only available when type is public_transport
 
     ResponseRoute:
       type: object
@@ -1982,6 +1994,58 @@ components:
           items:
             $ref: '#/components/schemas/ResponseTimeMapResult'
 
+    ResponsePublicTransportInfo:
+      type: object
+      properties:
+        date_start:
+          type: string
+          format: date
+          description: Start date of public transport data availability
+        date_end:
+          type: string
+          format: date
+          description: End date of public transport data availability
+
+    ResponseTimeFilterFastPeriod:
+      type: object
+      properties:
+        time_period:
+          type: string
+        supported:
+          type: array
+          items:
+            type: object
+            properties:
+              search_type:
+                type: string
+              transportation_mode:
+                type: string
+
+    ResponseTimeFilterFastInfo:
+      type: object
+      properties:
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterFastPeriod'
+
+    ResponseLocationFeatures:
+      type: object
+      description: Available TravelTime API features for this location
+      properties:
+        public_transport:
+          $ref: '#/components/schemas/ResponsePublicTransportInfo'
+        postcode:
+          type: boolean
+        fares:
+          type: boolean
+        cross_country_modes:
+          type: array
+          items:
+            type: string
+        time_filter_fast:
+          $ref: '#/components/schemas/ResponseTimeFilterFastInfo'
+
     ResponseGeocodingFeature:
       type: object
       required:
@@ -2009,15 +2073,19 @@ components:
                 type: number
               minItems: 2
               maxItems: 2
+              description: Coordinates in [longitude, latitude] format
         properties:
           type: object
           properties:
             name:
               type: string
+              description: Well formatted, human-readable address of the location (if format.name=true)
             label:
               type: string
+              description: Full formatted address
             score:
               type: number
+              description: Relevance score for the search result
             house_number:
               type: string
             street:
@@ -2040,6 +2108,22 @@ components:
               type: string
             continent:
               type: string
+            postcode:
+              type: string
+            local_admin:
+              type: string
+            district:
+              type: string
+            town:
+              type: string
+            category:
+              type: string
+              description: Category of the location
+            type:
+              type: string
+              description: Type of the location
+            features:
+              $ref: '#/components/schemas/ResponseLocationFeatures'
 
     ResponseGeocodingResponse:
       type: object
@@ -2192,26 +2276,9 @@ components:
           type: boolean
           description: Indicates whether or not postcode searches are supported
         public_transport:
-          type: object
-          description: Public transport support information. Public transport is not supported if this object is missing.
-          properties:
-            date_start:
-              type: string
-              format: date-time
-              description: Start date of public transport data availability
-            date_end:
-              type: string
-              format: date-time
-              description: End date of public transport data availability
+          $ref: '#/components/schemas/ResponsePublicTransportInfo'
         time_filter_fast:
-          type: object
-          description: Fast time-filter support information. The endpoint is not supported if this object is missing.
-          properties:
-            periods:
-              type: array
-              items:
-                type: object
-                description: Each entry describes a time period and time filter modes that are available for this country
+          $ref: '#/components/schemas/ResponseTimeFilterFastInfo'
         cross_country_modes:
           type: array
           items:
