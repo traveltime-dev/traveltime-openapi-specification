@@ -554,6 +554,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
 
     RequestTimeFilterFastArrivalOneToManySearch:
       type: object
@@ -586,6 +588,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
+        snapping:
+          $ref: '#/components/schemas/RequestSnapping'
 
     RequestTransportation:
       type: object
@@ -612,24 +616,31 @@ components:
         pt_change_delay:
           type: integer
           description: Time in seconds for changing between public transport modes
+          default: 0
         walking_time:
           type: integer
           description: Maximum walking time in seconds
+          default: 900
         driving_time_to_station:
           type: integer
           description: Maximum driving time to station in seconds (for driving+train)
+          default: 1800
         cycling_time_to_station:
           type: integer
           description: Maximum cycling time to station in seconds (for cycling+public_transport)
+          default: 900
         parking_time:
           type: integer
           description: Time in seconds for parking
+          default: 300
         boarding_time:
           type: integer
           description: Time in seconds for boarding
+          default: 0
         disable_border_crossing:
           type: boolean
           description: Disable crossing country borders (driving only)
+          default: false
         include_roads:
           type: array
           items:
@@ -650,8 +661,11 @@ components:
           properties:
             enabled:
               type: boolean
+              description: Enable transit leg change limit?
             limit:
               type: integer
+              description: Maximum number of changes between transit legs in a journey.
+          description: Upper limit for the number of changes between public transit legs in a journey.
 
     RequestTransportationFast:
       type: object
@@ -1662,6 +1676,26 @@ components:
           format: double
         currency:
           type: string
+          description: ISO 4217 currency code.
+    
+    ResponseFareTicketFast:
+      type: object
+      required:
+        - type
+        - price
+        - currency
+      properties:
+        type:
+          type: string
+          enum:
+            - month
+            - year
+        price:
+          type: number
+          format: double
+        currency:
+          type: string
+          description: ISO 4217 currency code.
 
     ResponseFaresBreakdownItem:
       type: object
@@ -1678,6 +1712,7 @@ components:
           type: array
           items:
             type: integer
+          description: Id's of route parts that are covered by these tickets.
         tickets:
           type: array
           items:
@@ -1706,7 +1741,7 @@ components:
         tickets_total:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseFareTicket'
+            $ref: '#/components/schemas/ResponseFareTicketFast'
 
     ResponseRoutePart:
       type: object
@@ -1803,6 +1838,16 @@ components:
           $ref: '#/components/schemas/ResponseFares'
         route:
           $ref: '#/components/schemas/ResponseRoute'
+    
+    ResponseTimeFilterPropertiesFast:
+      type: object
+      properties:
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+        distance:
+          $ref: '#/components/schemas/ResponseDistance'
+        fares:
+          $ref: '#/components/schemas/ResponseFaresFast'
 
     ResponseTimeFilterLocation:
       type: object
@@ -1816,6 +1861,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterProperties'
+    
+    ResponseTimeFilterLocationFast:
+      type: object
+      required:
+        - id
+        - properties
+      properties:
+        id:
+          type: string
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPropertiesFast'
 
     ResponseTimeFilterResult:
       type: object
@@ -1833,6 +1891,23 @@ components:
           type: array
           items:
             type: string
+    
+    ResponseTimeFilterResultFast:
+      type: object
+      required:
+        - search_id
+        - locations
+      properties:
+        search_id:
+          type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterLocationFast'
+        unreachable:
+          type: array
+          items:
+            type: string
 
     ResponseTimeFilterResponse:
       type: object
@@ -1843,6 +1918,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResponseTimeFilterResult'
+    
+    ResponseTimeFilterResponseFast:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterResultFast'
 
     ResponseTimeFilterGetProperties:
       type: object
@@ -2671,7 +2756,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseTimeFilterResponse'
+                $ref: '#/components/schemas/ResponseTimeFilterResponseFast'
         '400':
           description: Bad request
           content:
