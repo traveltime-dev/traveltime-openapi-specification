@@ -2425,6 +2425,92 @@ components:
 
 paths:
   /v4/time-filter:
+    get:
+      tags:
+        - Time Filter
+      summary: Time Filter GET (Simple Matrix Query)
+      description: |
+        Calculate travel times and distances from one search location to multiple target locations using a simple GET request.
+        For more complex queries with multiple searches, use the POST endpoint.
+        Note: Either departure_time or arrival_time must be specified (but not both).
+      operationId: timeFilterGet
+      parameters:
+        - name: app_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your TravelTime application ID
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your TravelTime API key
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - walking
+              - public_transport
+              - driving
+              - cycling
+          description: Mode of transport
+        - name: search_lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Latitude of the search location
+        - name: search_lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Longitude of the search location
+        - name: locations
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Coordinates of target locations in the format lat1_lng1,lat2_lng2,lat3_lng3 (e.g., 51.1234_0.1234,50.0000_-1.0000). Maximum 2,000 locations
+        - name: departure_time
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Departure time in ISO 8601 format (e.g., 2025-11-11T08:00:00Z). Either departure_time or arrival_time must be specified (but not both)
+        - name: arrival_time
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Arrival time in ISO 8601 format (e.g., 2025-11-11T08:00:00Z). Either departure_time or arrival_time must be specified (but not both)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeFilterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Time Filter
@@ -2630,6 +2716,100 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /v4/routes:
+    get:
+      tags:
+        - Routes
+      summary: Routes GET (Simple Route)
+      description: |
+        Calculate a single route using a simple GET request with query parameters.
+        For more complex queries with multiple routes, use the POST endpoint.
+        Note: Either departure_time or arrival_time must be specified (but not both).
+      operationId: routesGet
+      parameters:
+        - name: app_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your TravelTime application ID
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your TravelTime API key
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - walking
+              - public_transport
+              - driving
+              - cycling
+          description: Mode of transport
+        - name: origin_lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Latitude of the start location
+        - name: origin_lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Longitude of the start location
+        - name: destination_lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Latitude of the destination location
+        - name: destination_lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Longitude of the destination location
+        - name: departure_time
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Departure time in ISO 8601 format (e.g., 2025-11-11T08:00:00Z). Either departure_time or arrival_time must be specified (but not both)
+        - name: arrival_time
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Arrival time in ISO 8601 format (e.g., 2025-11-11T08:00:00Z). Either departure_time or arrival_time must be specified (but not both)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseRoutesResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Routes
@@ -2671,6 +2851,94 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /v4/time-map:
+    get:
+      tags:
+        - Time Map
+      summary: Time Map GET (Simple Isochrone)
+      description: |
+        Generate a single isochrone polygon using a simple GET request with query parameters.
+        For more complex queries with multiple searches, unions, or intersections, use the POST endpoint.
+        Note: Either departure_time or arrival_time must be specified (but not both).
+      operationId: timeMapGet
+      parameters:
+        - name: app_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your TravelTime application ID
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your TravelTime API key
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - walking
+              - public_transport
+              - driving
+              - cycling
+          description: Mode of transport
+        - name: travel_time
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 60
+            maximum: 14400
+          description: Maximum journey time in seconds (up to 4 hours)
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Latitude of the search location
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Longitude of the search location
+        - name: departure_time
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Departure time in ISO 8601 format (e.g., 2025-11-11T08:00:00Z). Either departure_time or arrival_time must be specified (but not both)
+        - name: arrival_time
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Arrival time in ISO 8601 format (e.g., 2025-11-11T08:00:00Z). Either departure_time or arrival_time must be specified (but not both)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeMapResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Time Map
