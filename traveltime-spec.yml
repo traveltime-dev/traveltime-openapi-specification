@@ -1844,6 +1844,49 @@ components:
           items:
             $ref: '#/components/schemas/ResponseTimeFilterResult'
 
+    ResponseTimeFilterGetProperties:
+      type: object
+      properties:
+        travel_time:
+          $ref: '#/components/schemas/ResponseTravelTime'
+
+    ResponseTimeFilterGetLocation:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        properties:
+          $ref: '#/components/schemas/ResponseTimeFilterGetProperties'
+
+    ResponseTimeFilterGetResult:
+      type: object
+      required:
+        - search_id
+        - locations
+      properties:
+        search_id:
+          type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterGetLocation'
+        unreachable:
+          type: array
+          items:
+            type: string
+
+    ResponseTimeFilterGetResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterGetResult'
+
     ResponseTravelTimeStatistics:
       type: object
       required:
@@ -2498,7 +2541,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseTimeFilterResponse'
+                $ref: '#/components/schemas/ResponseTimeFilterGetResponse'
         '400':
           description: Bad request
           content:
