@@ -1891,6 +1891,108 @@ components:
           type: number
           format: double
 
+    ResponseTimeFilterPostcode:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Postcode code
+        properties:
+          $ref: '#/components/schemas/ResponseTimeFilterPostcodesProperties'
+
+    ResponseTimeFilterPostcodesResult:
+      type: object
+      required:
+        - search_id
+        - postcodes
+      properties:
+        search_id:
+          type: string
+        postcodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcode'
+
+    ResponseTimeFilterPostcodesResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodesResult'
+
+    ResponseTimeFilterPostcodeDistrict:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Postcode district code
+        properties:
+          $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictProperties'
+
+    ResponseTimeFilterPostcodeDistrictsResult:
+      type: object
+      required:
+        - search_id
+        - districts
+      properties:
+        search_id:
+          type: string
+        districts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrict'
+
+    ResponseTimeFilterPostcodeDistrictsResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictsResult'
+
+    ResponseTimeFilterPostcodeSector:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Postcode sector code
+        properties:
+          $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorProperties'
+
+    ResponseTimeFilterPostcodeSectorsResult:
+      type: object
+      required:
+        - search_id
+        - sectors
+      properties:
+        search_id:
+          type: string
+        sectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSector'
+
+    ResponseTimeFilterPostcodeSectorsResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorsResult'
+
     ResponseTimeFilterFastProperties:
       type: object
       properties:
@@ -2426,6 +2528,10 @@ paths:
       responses:
         '200':
           description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeFilterPostcodesResponse'
         '400':
           description: Bad request
           content:
@@ -2461,6 +2567,10 @@ paths:
       responses:
         '200':
           description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeFilterPostcodeDistrictsResponse'
         '400':
           description: Bad request
           content:
@@ -2496,6 +2606,10 @@ paths:
       responses:
         '200':
           description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseTimeFilterPostcodeSectorsResponse'
         '400':
           description: Bad request
           content:
