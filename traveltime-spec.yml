@@ -82,7 +82,7 @@ components:
           properties:
             h3_centroid:
               type: string
-              description: H3 index centroid of which will be treated as the location of departure. Mutually exclusive with lat and lng parameters.
+              description: H3 index centroid of which will be treated as the location of departure or arrival. Mutually exclusive with lat and lng parameters.
 
     CoordsOrGeohash:
       oneOf:
@@ -93,7 +93,7 @@ components:
           properties:
             geohash_centroid:
               type: string
-              description: Geohash index centroid of which will be treated as the location of departure. Mutually exclusive with lat and lng parameters.
+              description: Geohash index centroid of which will be treated as the location of departure or arrival. Mutually exclusive with lat and lng parameters.
 
     RequestLocation:
       type: object
