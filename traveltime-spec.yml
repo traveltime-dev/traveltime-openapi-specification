@@ -73,6 +73,28 @@ components:
           minimum: -180
           maximum: 180
 
+    CoordsOrH3:
+      oneOf:
+        - $ref: '#/components/schemas/Coords'
+        - type: object
+          required:
+            - h3_centroid
+          properties:
+            h3_centroid:
+              type: string
+              description: H3 index centroid of which will be treated as the location of departure or arrival. Mutually exclusive with lat and lng parameters.
+
+    CoordsOrGeohash:
+      oneOf:
+        - $ref: '#/components/schemas/Coords'
+        - type: object
+          required:
+            - geohash_centroid
+          properties:
+            geohash_centroid:
+              type: string
+              description: Geohash index centroid of which will be treated as the location of departure or arrival. Mutually exclusive with lat and lng parameters.
+
     RequestLocation:
       type: object
       required:
@@ -1236,7 +1258,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrH3'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -1263,7 +1285,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrH3'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -1323,7 +1345,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrH3'
         transportation:
           $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
@@ -1345,7 +1367,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrH3'
         transportation:
           $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
@@ -1427,7 +1449,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrGeohash'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -1454,7 +1476,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrGeohash'
         transportation:
           $ref: '#/components/schemas/RequestTransportation'
         travel_time:
@@ -1514,7 +1536,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrGeohash'
         transportation:
           $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
@@ -1536,7 +1558,7 @@ components:
         id:
           $ref: '#/components/schemas/RequestSearchId'
         coords:
-          $ref: '#/components/schemas/Coords'
+          $ref: '#/components/schemas/CoordsOrGeohash'
         transportation:
           $ref: '#/components/schemas/RequestTransportationFast'
         travel_time:
