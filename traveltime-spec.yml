@@ -236,7 +236,7 @@ components:
           description: Maximum distance in meters between locations and the nearest accessible road. Default is 1000 meters. Departure locations exceeding this return errors, arrival locations return unreachable results
           default: 1000
     
-    RequestSnappingH3:
+    RequestSnappingH3AndGeohash:
       type: object
       properties:
         penalty:
@@ -1290,7 +1290,7 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         snapping:
-          $ref: '#/components/schemas/RequestSnappingH3'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
         remove_water_bodies:
           type: boolean
           description: Remove water bodies from the results
@@ -1317,7 +1317,7 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         snapping:
-          $ref: '#/components/schemas/RequestSnappingH3'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
         remove_water_bodies:
           type: boolean
           description: Remove water bodies from the results
@@ -1375,7 +1375,7 @@ components:
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         snapping:
-          $ref: '#/components/schemas/RequestSnappingH3'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
 
     RequestH3FastArrivalOneToManySearch:
       type: object
@@ -1397,7 +1397,7 @@ components:
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         snapping:
-          $ref: '#/components/schemas/RequestSnappingH3'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
 
     RequestH3FastArrivalSearches:
       type: object
@@ -1481,7 +1481,7 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
         remove_water_bodies:
           type: boolean
           description: Remove water bodies from the results
@@ -1508,7 +1508,7 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
         remove_water_bodies:
           type: boolean
           description: Remove water bodies from the results
@@ -1566,7 +1566,7 @@ components:
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
 
     RequestGeohashFastArrivalOneToManySearch:
       type: object
@@ -1588,7 +1588,7 @@ components:
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3AndGeohash'
 
     RequestGeohashFastArrivalSearches:
       type: object
