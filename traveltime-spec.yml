@@ -661,7 +661,7 @@ components:
           properties:
             enabled:
               type: boolean
-              description: Enable transit leg change limit?
+              description: Enable transit leg change limit
             limit:
               type: integer
               description: Maximum number of changes between transit legs in a journey.
