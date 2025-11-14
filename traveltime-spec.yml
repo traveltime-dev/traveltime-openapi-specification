@@ -235,6 +235,28 @@ components:
           type: integer
           description: Maximum distance in meters between locations and the nearest accessible road. Default is 1000 meters. Departure locations exceeding this return errors, arrival locations return unreachable results
           default: 1000
+    
+    RequestSnappingH3:
+      type: object
+      properties:
+        penalty:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: |
+            Controls whether walking distances to/from the nearest road are included in travel time/distance.
+            - enabled (default): Walking time/distance from departure to nearest road and from nearest road to arrival are added to totals
+            - disabled: Journey starts/ends at the nearest road network point, excluding walking portions
+        accept_roads:
+          type: string
+          enum:
+            - both_drivable_and_walkable
+            - any_drivable
+          description: |
+            Controls which road types can serve as journey start/end points.
+            - both_drivable_and_walkable (default): Only roads accessible by both cars and pedestrians, preventing routes from starting/ending on motorways
+            - any_drivable: Any road accessible by car, including motorways
 
     RequestTimeFilterPostcodesProperty:
       type: string
@@ -1268,7 +1290,7 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3'
         remove_water_bodies:
           type: boolean
           description: Remove water bodies from the results
@@ -1295,7 +1317,7 @@ components:
         range:
           $ref: '#/components/schemas/RequestRangeNoMaxResults'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3'
         remove_water_bodies:
           type: boolean
           description: Remove water bodies from the results
@@ -1353,7 +1375,7 @@ components:
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3'
 
     RequestH3FastArrivalOneToManySearch:
       type: object
@@ -1375,7 +1397,7 @@ components:
         arrival_time_period:
           $ref: '#/components/schemas/RequestArrivalTimePeriod'
         snapping:
-          $ref: '#/components/schemas/RequestSnapping'
+          $ref: '#/components/schemas/RequestSnappingH3'
 
     RequestH3FastArrivalSearches:
       type: object
