@@ -587,6 +587,39 @@ components:
           items:
             $ref: '#/components/schemas/RequestTimeFilterFastProperty'
 
+    RequestTransportationDistanceMap:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - driving
+            - walking
+            - cycling
+            - driving+ferry
+            - cycling+ferry
+            - ferry
+          description: Mode of transportation for distance map
+        boarding_time:
+          type: integer
+          description: Time in seconds for boarding
+          default: 0
+          maximum: 3600
+        disable_border_crossing:
+          type: boolean
+          description: Disable crossing country borders (driving only)
+          default: false
+        include_roads:
+          type: array
+          items:
+            type: string
+            enum:
+              - track
+              - restricted
+          description: Additional road types to include when executing search. Only affects driving and driving+ferry transportation modes. track = unpaved roads that only allow very slow driving speed or may require an off-road capable vehicle. restricted = roads that are not publicly accessible and may require a special permit. By default all of these roads are excluded from the search.
+
     RequestTransportation:
       type: object
       required:
@@ -1042,7 +1075,7 @@ components:
         coords:
           $ref: '#/components/schemas/Coords'
         transportation:
-          $ref: '#/components/schemas/RequestTransportation'
+          $ref: '#/components/schemas/RequestTransportationDistanceMap'
         travel_distance:
           $ref: '#/components/schemas/RequestTravelDistance'
         departure_time:
@@ -1071,7 +1104,7 @@ components:
         coords:
           $ref: '#/components/schemas/Coords'
         transportation:
-          $ref: '#/components/schemas/RequestTransportation'
+          $ref: '#/components/schemas/RequestTransportationDistanceMap'
         travel_distance:
           $ref: '#/components/schemas/RequestTravelDistance'
         arrival_time:
