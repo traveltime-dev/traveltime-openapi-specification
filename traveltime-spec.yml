@@ -1049,6 +1049,10 @@ components:
         remove_water_bodies:
           type: boolean
           description: If true (default), returned shape will not cover large nearby water bodies. If false, shape may cover nearby water bodies like large lakes, wide rivers and seas.
+        buffer_distance:
+          type: integer
+          minimum: 250
+          maximum: 1000
 
     RequestTimeMapArrivalSearch:
       type: object
@@ -1093,6 +1097,10 @@ components:
         remove_water_bodies:
           type: boolean
           description: If true (default), returned shape will not cover large nearby water bodies. If false, shape may cover nearby water bodies like large lakes, wide rivers and seas.
+        buffer_distance:
+          type: integer
+          minimum: 250
+          maximum: 1000
 
     RequestTimeMap:
       type: object
@@ -1147,6 +1155,12 @@ components:
         no_holes:
           type: boolean
           description: Enable to remove holes from returned polygons. Note that this will likely result in loss in accuracy.
+        render_mode:
+          $ref: '#/components/schemas/RequestRenderMode'
+        buffer_distance:
+          type: integer
+          minimum: 250
+          maximum: 1000
 
     RequestDistanceMapArrivalSearch:
       type: object
@@ -1176,6 +1190,12 @@ components:
         no_holes:
           type: boolean
           description: Enable to remove holes from returned polygons. Note that this will likely result in loss in accuracy.
+        render_mode:
+          $ref: '#/components/schemas/RequestRenderMode'
+        buffer_distance:
+          type: integer
+          minimum: 250
+          maximum: 1000
 
     RequestDistanceMap:
       type: object
@@ -1240,6 +1260,11 @@ components:
           description: Remove holes from polygons
         render_mode:
           $ref: '#/components/schemas/RequestRenderMode'
+        buffer_distance:
+          type: integer
+          minimum: 250
+          maximum: 1000
+
 
     RequestTimeMapFastArrivalOneToManySearch:
       type: object
@@ -1271,6 +1296,10 @@ components:
           description: Remove holes from polygons
         render_mode:
           $ref: '#/components/schemas/RequestRenderMode'
+        buffer_distance:
+          type: integer
+          minimum: 250
+          maximum: 1000
 
     RequestTimeMapFastArrivalSearches:
       type: object
