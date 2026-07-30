@@ -257,6 +257,10 @@ components:
             Controls which road types can serve as journey start/end points.
             - both_drivable_and_walkable (default): Only roads accessible by both cars and pedestrians, preventing routes from starting/ending on motorways
             - any_drivable: Any road accessible by car, including motorways
+        threshold:
+          type: integer
+          description: Maximum distance in meters allowed between the departure/arrival locations and the nearest road that supports the selected travel mode. This limit is applied only at search location of the geogrid. Increasing the limit allows cells to be generated around search locations further from the road network. Default is 1000 meters
+          default: 1000
 
     RequestTimeFilterPostcodesProperty:
       type: string
