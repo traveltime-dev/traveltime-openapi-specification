@@ -160,6 +160,7 @@ components:
         - distance
         - fares
         - route
+        - h3
       description: Properties to return for route searches
 
     RequestTimeFilterProperty:
@@ -769,6 +770,22 @@ components:
             - off_peak
           description: Determines the level of traffic used in driving journeys. peak (default) = represents typical traffic conditions for a midweek morning. off_peak = represents typical traffic conditions at night time. Can only be specified with driving+ferry and driving+public_transport transportation types.
     
+    RequestRoutesH3:
+      type: object
+      description: Configures the H3 representation of the routes returned by this search. Applies only when `properties` includes `h3`
+      properties:
+        resolution:
+          type: integer
+          minimum: 6
+          maximum: 11
+          default: 8
+          description: Resolution of the returned H3 cells
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestH3Property'
+          description: Travel time statistics to return for each cell. A cell carries only its id when this is omitted
+
     RequestRoutesDepartureSearch:
       type: object
       required:
@@ -801,6 +818,8 @@ components:
           $ref: '#/components/schemas/RequestRangeFull'
         snapping:
           $ref: '#/components/schemas/RequestSnapping'
+        h3:
+          $ref: '#/components/schemas/RequestRoutesH3'
 
     RequestRoutesArrivalSearch:
       type: object
@@ -834,6 +853,8 @@ components:
           $ref: '#/components/schemas/RequestRangeFull'
         snapping:
           $ref: '#/components/schemas/RequestSnapping'
+        h3:
+          $ref: '#/components/schemas/RequestRoutesH3'
 
     RequestTimeFilter:
       type: object
@@ -2241,6 +2262,17 @@ components:
         fares:
           $ref: '#/components/schemas/ResponseFaresFast'
 
+    ResponseRoutesH3:
+      type: object
+      required:
+        - cells
+      properties:
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseH3Cell'
+          description: The H3 cells this route passes through
+
     ResponseRoutesProperties:
       type: object
       properties:
@@ -2252,6 +2284,8 @@ components:
           $ref: '#/components/schemas/ResponseFares'
         route:
           $ref: '#/components/schemas/ResponseRoute'
+        h3:
+          $ref: '#/components/schemas/ResponseRoutesH3'
 
     ResponseRoutesLocation:
       type: object
